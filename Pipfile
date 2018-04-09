@@ -1,22 +1,17 @@
 [[source]]
-
 verify_ssl = true
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 name = "pypi"
 
-
 [dev-packages]
 
-
-
 [packages]
-
-flask = "*"
-wtforms = "*"
-flask-sqlalchemy = "*"
-pymysql = "*"
-
+Flask = "*"
+WTForms = "*"
+Flask-SQLAlchemy = "*"
+PyMySQL = "*"
+requests = "*"
+pycryptodome = "*"
 
 [requires]
-
 python_version = "3.5"

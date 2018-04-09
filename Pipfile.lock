@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "503450874fd16f8016c497e8320a5d61c6da79b044360319d379022ce8a51778"
+            "sha256": "afdb29c68fbe57fae1fe04e8e52d62be569301ab653b2d4d007bf269596a71f4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,20 @@
         ]
     },
     "default": {
+        "certifi": {
+            "hashes": [
+                "sha256:14131608ad2fd56836d33a71ee60fa1c82bc9d2c8d98b7bdbc631fe1b3cd1296",
+                "sha256:edbc3f203427eef571f79a7692bb160a2b0f7ccaa31953e99bd17e307cf63f7d"
+            ],
+            "version": "==2018.1.18"
+        },
+        "chardet": {
+            "hashes": [
+                "sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae",
+                "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"
+            ],
+            "version": "==3.0.4"
+        },
         "click": {
             "hashes": [
                 "sha256:29f99fc6125fbc931b758dc053b3114e55c77a6e4c6c3a2674a2dc986016381d",
@@ -28,6 +42,7 @@
                 "sha256:0749df235e3ff61ac108f69ac178c9770caeaccad2509cb762ce1f65570a8856",
                 "sha256:49f44461237b69ecd901cc7ce66feea0319b9158743dd27a2899962ab214dac1"
             ],
+            "index": "pypi",
             "version": "==0.12.2"
         },
         "flask-sqlalchemy": {
@@ -35,7 +50,15 @@
                 "sha256:3bc0fac969dd8c0ace01b32060f0c729565293302f0c4269beed154b46bec50b",
                 "sha256:5971b9852b5888655f11db634e87725a9031e170f37c0ce7851cf83497f56e53"
             ],
+            "index": "pypi",
             "version": "==2.3.2"
+        },
+        "idna": {
+            "hashes": [
+                "sha256:2c6a5de3089009e3da7c5dde64a141dbc8551d5b7f6cf4ed7c2568d0cc520a8f",
+                "sha256:8c7309c718f94b3a625cb648ace320157ad16ff131ae0af362c9f21b80ef6ec4"
+            ],
+            "version": "==2.6"
         },
         "itsdangerous": {
             "hashes": [
@@ -56,18 +79,67 @@
             ],
             "version": "==1.0"
         },
+        "pycryptodome": {
+            "hashes": [
+                "sha256:018d4d2adbd807d3336f49872aa9f019dedfeae54d4787400e091f85254fda0a",
+                "sha256:052c53809b04417de9a444e40d45b8b22806a39862460174c205a5d52acb2dd0",
+                "sha256:06845706ef2b3f29825dac74692bf3378e7947a170effd2073f8f940d222aa50",
+                "sha256:12f77043303fd538ae78781bd1bad5db2483b86867a7833b78ae96f7c3d1d0de",
+                "sha256:1f8907222af96df5b17c1342d460bc508dda6a403162b1126ae649c2dd7df218",
+                "sha256:32fe94b940cba54a0dd6e0f7b758b07334b9c02970748a7704f43d6d3e2b6525",
+                "sha256:37dfac96a70d4b6f61da218f3322a77730f767af874ac06da06a2a52d36b174a",
+                "sha256:41293e0ec848757505493cc476685d73f498ab08042ec1f97c33d59831f370b8",
+                "sha256:412a6d0ee0bafe7d221f6988e7de845518d98f84e69871e8a9df15c1424e2800",
+                "sha256:4b5d1ea8a88898af2c92ff2c113206f8fec04209f0461cc831d6f38d859d5e21",
+                "sha256:67027449ee1b2abf873639b61a7f373c99a3f03c3b795bca858b57e114ec379a",
+                "sha256:74c32a359cc1a9bfeb46e2ba6ffb35038c72eecb6622743ca7ae919a530e5a5d",
+                "sha256:9e40639b3b414eb592ee96d773a950a33e0aae32f705fa30cbca6a6bc0ededec",
+                "sha256:a024ac99ce8dec9d78ce82cffb5bc91f09bfa5690c93acb8c94383911a0fb71a",
+                "sha256:c06398137f95539468f46197b46bbb193c1e07d51852ca194b1142f88a38c8be",
+                "sha256:c340a9f2a77f98e43235e745e679ab361487a7df7b27087d4b2ab491563b0576",
+                "sha256:c430bcac1e6d460615d389375608d03e930f0ef9957733bc07d40e4f0219e199",
+                "sha256:c90b59e61395467384b3ced7bc1f42951ca68a9684152ea3c7d9d75467ecbdd3",
+                "sha256:c95723af7fe6875805e43347a445d7bcd67ce0d51a87dfb848b02fd67a8ffc00",
+                "sha256:da21737decc83d3523873b70add82afe4b0403809ff489a27acbfac652772562",
+                "sha256:dd53f5bfc3f0660cb4ece3577bf6a4866bf331209b5e018473802c0bb84e0ab1",
+                "sha256:e0160c6de1af0434dae0b06a94d708a91468e18003ed2ec21194d8be496df8c2",
+                "sha256:eb2f9275399e8f890099ccc7920158e7bd5315375fa18eec0d8d3ce36b14ed69",
+                "sha256:f12d7b50faebb269c2f5e5fe9e5c7b1c2d8b98e0f75ce28fc3dbf26bd1f11cf7",
+                "sha256:f87f2e4e8320011a5c2d80dd2833c7e24969e3e06a069123e3c73cc1c9ac3fe2",
+                "sha256:f9cf995f1c4a1017829e54bed27105f61c14ccbe8d5d46b339d7f8d0a6bca7e2",
+                "sha256:fd0bdefde4c11c10db2b1b5f7296cf6570b2c283be6f88c3d6fa2b24847b9e9d"
+            ],
+            "index": "pypi",
+            "version": "==3.6.0"
+        },
         "pymysql": {
             "hashes": [
                 "sha256:04fa19fad017fdb21394fad2878c1d6bd346959d4fbfd1b66050a09fc636a321",
                 "sha256:32da4a66397077d42908e449688f2ec71c2b18892a6cd04f03ab2aa828a70f40"
             ],
+            "index": "pypi",
             "version": "==0.8.0"
+        },
+        "requests": {
+            "hashes": [
+                "sha256:6a1b267aa90cac58ac3a765d067950e7dbbf75b1da07e895d1f594193a40a38b",
+                "sha256:9c443e7324ba5b85070c4a818ade28bfabedf16ea10206da1132edaa6dda237e"
+            ],
+            "index": "pypi",
+            "version": "==2.18.4"
         },
         "sqlalchemy": {
             "hashes": [
                 "sha256:7cb00cc9b9f92ef8b4391c8a2051f81eeafefe32d63c6b395fd51401e9a39edb"
             ],
             "version": "==1.2.6"
+        },
+        "urllib3": {
+            "hashes": [
+                "sha256:06330f386d6e4b195fbfc736b297f58c5a892e4440e54d294d7004e3a9bbea1b",
+                "sha256:cc44da8e1145637334317feebd728bd869a35285b93cbb4cca2577da7e62db4f"
+            ],
+            "version": "==1.22"
         },
         "werkzeug": {
             "hashes": [
@@ -80,6 +152,7 @@
             "hashes": [
                 "sha256:ffdf10bd1fa565b8233380cb77a304cd36fd55c73023e91d4b803c96bc11d46f"
             ],
+            "index": "pypi",
             "version": "==2.1"
         }
     },
