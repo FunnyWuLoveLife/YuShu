@@ -1,0 +1,22 @@
+[[source]]
+
+verify_ssl = true
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+name = "pypi"
+
+
+[dev-packages]
+
+
+
+[packages]
+
+flask = "*"
+wtforms = "*"
+flask-sqlalchemy = "*"
+pymysql = "*"
+
+
+[requires]
+
+python_version = "3.5"
