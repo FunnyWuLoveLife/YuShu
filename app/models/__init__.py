@@ -9,6 +9,7 @@
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+from .base import BaseModel
 
 from .user import User, Sessionkey
-from .book import Book
+from .book import BookModel

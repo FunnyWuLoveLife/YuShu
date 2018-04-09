@@ -8,13 +8,12 @@
 # @Software: PyCharm
 from sqlalchemy import Column, INTEGER, String
 
-from . import db
+from . import BaseModel
 
 
-class Book(db.Model):
+class BookModel(BaseModel):
     __tablename__ = 'tb_book'
 
-    id = Column(INTEGER, primary_key=True, autoincrement=True, comment='自增主键')
     title = Column(String(50), nullable=False, comment='数据的名称')
     author = Column(String(30), default='未名', comment='作者')
     binding = Column(String(20), comment='装帧')
@@ -26,3 +25,7 @@ class Book(db.Model):
     pubdate = Column(String(20), comment='出版年')
     publisher = Column(String(50), comment='出版社')
     summary = Column(String(1000), comment='内容简介')
+
+    @classmethod
+    def find_book_by_isbn(cls):
+        pass

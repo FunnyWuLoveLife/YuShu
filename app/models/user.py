@@ -8,16 +8,16 @@
 # @Software: PyCharm
 from uuid import uuid4
 
-from sqlalchemy import Column, INTEGER, String
+from flask import current_app as app
+from sqlalchemy import Column, Integer, String
 
-from . import db
+from . import BaseModel, db
 from util.httpHelper import HTTP
 
 
-class User(db.Model):
+class User(BaseModel):
     __tablename__ = 'tb_user'
 
-    id = Column(INTEGER, primary_key=True, autoincrement=True, comment='自增主键')
     openId = Column(String(20), unique=True, comment='微信开放平台App唯一id')
     unionId = Column(String(20), nullable=True, comment='微信开放平台用户唯一id')
 
