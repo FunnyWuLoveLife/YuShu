@@ -12,8 +12,8 @@ from flask import jsonify, request
 from util.common import is_isbn
 
 from . import web
-from ..services import Book
 from ..forms import SearchForm
+from ..models import Book
 
 
 @web.route('/book/search')

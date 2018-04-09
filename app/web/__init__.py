@@ -10,5 +10,6 @@ from flask import Blueprint
 
 web = Blueprint('web', __name__)
 
-from .book import search
-from .index import index
+from .book import *
+from .index import *
+from .user import *
