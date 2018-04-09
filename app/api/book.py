@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 # @file: book.py
-# @time: 2018/4/2 0:48
+# @time: 2018/4/10 1:10
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
@@ -12,13 +12,13 @@ from flask import jsonify, request
 
 from util.common import is_isbn
 
-from . import web
+from . import api
 from ..forms import SearchForm
 from ..spider import DouBanBook
 from ..view_models import BookCollection
 
 
-@web.route('/book/search')
+@api.route('/api/book/search')
 def search():
     """
     图书检索

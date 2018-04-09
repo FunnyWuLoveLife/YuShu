@@ -8,7 +8,7 @@
 # @Software: PyCharm
 from flask import Blueprint
 
-web = Blueprint('web', __name__)
+web = Blueprint('web', __name__, static_folder='static', static_url_path='/web/static')
 
 from .book import *
 from .index import *

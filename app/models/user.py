@@ -11,6 +11,7 @@ from uuid import uuid4
 from sqlalchemy import Column, INTEGER, String
 
 from . import db
+from util.httpHelper import HTTP
 
 
 class User(db.Model):
@@ -34,7 +35,7 @@ class User(db.Model):
 class Sessionkey(db.Model):
     __tablename__ = 'tb_session'
 
-    token = Column(String, primary_key=True, comment='用户Token')
+    token = Column(String(40), primary_key=True, comment='用户Token')
     openId = Column(String(30), primary_key=True, comment='用户唯一标识')
     sessionKey = Column(String(30), unique=True, nullable=False, comment='会话密钥')
 
