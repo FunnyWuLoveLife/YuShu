@@ -11,11 +11,12 @@
 class BookViewModel:
     def __init__(self, book):
         self.title = book['title']
-        self.author = book['author']
-        self.publisher = book['publisher'] or ''
+        # self.author = book['author']
+        # self.publisher = book['publisher'] or ''
         self.image = book['image']
-        self.summary = book['summary'] or ''
-        self.price = book['price'] or '未知'
+		self.isbn = book['isbn']
+        # self.summary = book['summary'] or ''
+        # self.price = book['price'] or '未知'
 
 
 class BookCollection:
