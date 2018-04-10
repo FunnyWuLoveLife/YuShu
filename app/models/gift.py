@@ -15,8 +15,7 @@ from . import BaseModel
 class Gift(BaseModel):
     __tablename__ = 'tb_gitf'
 
-    user = relationship('User')
-    uid = Column(Integer, ForeignKey('user.id'))
+    uid = Column(Integer, ForeignKey('tb_user.id'))
 
     isbn = Column(String(15), nullable=False, comment='唯一isbn号')
 

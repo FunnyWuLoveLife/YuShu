@@ -7,4 +7,5 @@
 # @contact: agiot1026@163.com
 # @Software: PyCharm
 
+from .base import ResponseViewModel
 from .book import BookViewModel, BookCollection

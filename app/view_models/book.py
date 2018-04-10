@@ -22,10 +22,10 @@ class BookCollection:
     def __init__(self):
         self.total = 0
         self.books = []
-        self.kerword = ''
+        self.keyword = ''
 
     def fill(self, dou_book, keyword):
         self.total = dou_book.total
         self.books = [BookViewModel(book) for book in dou_book.books]
-        self.kerword = keyword
+        self.keyword = keyword
         return self
