@@ -32,12 +32,14 @@ class BookDetail:
             self.title = book['title']
             self.author = book['author']
             self.publisher = book['publisher'] or ''
-            self.summary = ' '+book['summary'].replace(r'.', '') if book['summary'] else ''
+            self.summary = ' ' + book['summary'].replace(r'.', '') if book['summary'] else ''
             self.price = '￥' + book['price'] or '未知'
             self.image = book['image']
             self.isbn = book['isbn']
             self.pages = book['pages']
             self.binding = book['binding']
+        else:
+            return None
         return self
 
 

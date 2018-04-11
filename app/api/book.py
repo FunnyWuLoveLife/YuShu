@@ -49,6 +49,6 @@ def details():
 
         book = DouBanBook.search_detail_by_isbn(isbn)
 
-        return ResponseModel(dataObj=book).to_response()
+        return ResponseModel(dataObj=BookDetail().fill(book)).to_response()
     else:
         return ResponseModel(dataObj=form.errors).to_response()

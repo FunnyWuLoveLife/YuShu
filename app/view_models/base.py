@@ -29,10 +29,15 @@ class ResponseModel:
 
     def __init__(self, dataObj, code=200, msg_code=2000, msg=None):
         # 参数错误
+        self.code = code
+
+        if dataObj is None:
+            self.code = 404
+            msg = msg or '请求的资源不存在'
+            msg_code = msg_code or 404
 
         self.data = json.dumps(ResponseViewModel(code=msg_code, msg=msg, data=dataObj),
                                default=lambda o: o.__dict__)
-        self.code = code
 
         if isinstance(dataObj, dict):
             self.code = 400
