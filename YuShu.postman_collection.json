@@ -1,8 +1,10 @@
 {
+	"variables": [],
 	"info": {
-		"_postman_id": "96ea6757-ac7d-465f-8828-1a72b51bbf97",
 		"name": "YuShu",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"_postman_id": "a32da521-c0c2-b577-4b05-29c784236d01",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
 		{
@@ -12,9 +14,6 @@
 				{
 					"name": "/api/book/search",
 					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {},
 						"url": {
 							"raw": "{{server}}/api/book/search?q=python",
 							"host": [
@@ -30,8 +29,16 @@
 									"key": "q",
 									"value": "python"
 								}
-							]
-						}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
 					},
 					"response": []
 				}
@@ -42,63 +49,56 @@
 			"description": "",
 			"item": [
 				{
-					"name": "/user/wx/onLogin",
+					"name": "/api/user/token/onLogin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var data = JSON.parse(responseBody);\r",
+									"if (data.code == 200) {\r",
+									"    postman.setEnvironmentVariable(\"token\", data.data.token);\r",
+									"}"
+								]
+							}
+						}
+					],
 					"request": {
+						"url": "{{server}}/api/user/token/onLogin",
 						"method": "POST",
 						"header": [
 							{
 								"key": "Content-Type",
-								"value": "application/json"
+								"value": "application/json",
+								"description": ""
 							}
 						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n\t\"code\":\"003pPmj11OOkNZ1RO0m11FEhj11pPmj\"\r\n}"
 						},
-						"url": {
-							"raw": "{{server}}/user/wx/onLogin",
-							"host": [
-								"{{server}}"
-							],
-							"path": [
-								"user",
-								"wx",
-								"onLogin"
-							]
-						}
+						"description": ""
 					},
 					"response": []
 				},
 				{
-					"name": "/user/wx/inof",
+					"name": "/api/user/token/verify",
 					"request": {
+						"url": "{{server}}/api/user/token/verify",
 						"method": "POST",
 						"header": [
 							{
 								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "",
-								"value": "",
-								"disabled": true
+								"value": "application/json",
+								"description": ""
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"errMsg\": \"getUserInfo:ok\", \r\n    \"rawData\": \"{\\\"nickName\\\":\\\"吴银\\\",\\\"gender\\\":1,\\\"language\\\":\\\"zh_CN\\\",\\\"city\\\":\\\"Kaixian\\\",\\\"province\\\":\\\"Chongqing\\\",\\\"country\\\":\\\"China\\\",\\\"avatarUrl\\\":\\\"https://wx.qlogo.cn/mmopen/vi_32/EyffhicmMFx681qiao1jiaVviavh3p69Pl4X9SbqwyY5Kzn6zx5fcg4yMUWRfvoX4ZicS0Kt39GHALVDUxicLkpuZOpg/0\\\"}\", \r\n    \"userInfo\": {}, \r\n    \"signature\": \"5a6b4877b542e1f755274f5860141549b8d233e4\", \r\n    \"encryptedData\": \"0hUleSMzUix0Rd6Fgu/M2ZITnS5ArU7Dir2N4d92qmLSQcZ6U7B9bw6hJVkJL7+3XTrnDvf9ZJr/9KRZN6SZpT7rs4TKCE7LJ58YeJeq4Xhw2RRUOdR02A/3sZlWYpLgKOPTghbmzBznsrGvZU7FfMC74Cd+8oTSrawqhGCuQsA2mxBKa9CI5pFNoaM5Jb4BzwRYtsCP5yleJSRjg3B0B37k8adAm2PDVqtmWttemE7vti2Pw1cqxtjm1y2HYCEVCS+F1shH1ZvdzDERhmk6NRDq/ucQoDdzmcb+QcBnNpx/RjLdmRYTPia5sxo4o8g1xICFpSs3p0g3/FHYLhD8B8U7trqajaBSyq4WBLR9OuxOG2uDMCcpSwg9y/LYco1kMETGdBhpfY61Jd+HyjA2IxLsNfAC7tWSpYi27/j0u5lS5a6FH1zGukT1+LHoYZn0VcWqI/2PSiGH3hs3yqwhMGxv1jGRB/6K6lJDbPEKLx0=\", \r\n    \"iv\": \"ET6jZ6m8MzQJwSTxET3H+A==\"\r\n}"
+							"raw": "{\r\n\t\"token\":\"{{token}}\"\r\n}"
 						},
-						"url": {
-							"raw": "{{server}}/user/wx/inof",
-							"host": [
-								"{{server}}"
-							],
-							"path": [
-								"user",
-								"wx",
-								"inof"
-							]
-						}
+						"description": ""
 					},
 					"response": []
 				}

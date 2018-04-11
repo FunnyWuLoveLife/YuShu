@@ -9,7 +9,7 @@
 from uuid import uuid4
 
 from flask import current_app as app
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 
 from . import BaseModel, db
 from util.httpHelper import HTTP
@@ -35,7 +35,8 @@ class User(BaseModel):
 class Sessionkey(db.Model):
     __tablename__ = 'tb_session'
 
-    token = Column(String(40), primary_key=True, comment='用户Token')
+    uid = Column(Integer, ForeignKey('tb_user.id'))
+
     openId = Column(String(30), primary_key=True, comment='用户唯一标识')
     sessionKey = Column(String(30), unique=True, nullable=False, comment='会话密钥')
 
@@ -62,15 +63,3 @@ class Sessionkey(db.Model):
 
     def __repr__(self):
         return '<Sessionkey: openId=%r, sessionKey=%r>' % (self.openId, self.sessionKey)
-
-    @classmethod
-    def getSessionKeyFromWx(cls, code):
-        wx_url = 'https://api.weixin.qq.com/sns/jscode2session?appid={}' \
-                 '&secret={}&js_code={}&grant_type=authorization_code'.format(app.config['APPID'],
-                                                                              app.config['SECRET'], code)
-        with app.app_context():
-            data = HTTP.get(wx_url)
-            if data != '':
-                cls.save(data.get('session_key'), data.get('openid'))
-                return True
-        return False
