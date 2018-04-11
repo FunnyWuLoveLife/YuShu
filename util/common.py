@@ -6,6 +6,7 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
+import requests
 
 
 def is_isbn(word):
@@ -24,3 +25,10 @@ def is_isbn(word):
     if '-' in word and len(short_key) == 10 and short_key.isdigit():
         return True
     return False
+
+
+def get_openid_and_session_key(appId, secret, data):
+    _url = "https://api.weixin.qq.com/sns/jscode2session?" \
+           "appid={}&secret={}&js_code={}&" \
+           "grant_type=authorization_code".format(appId, secret, data.get('code'))
+    pass

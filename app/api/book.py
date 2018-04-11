@@ -13,7 +13,7 @@ from util.common import is_isbn
 from . import api
 from ..forms import SearchForm, DetailForm
 from ..spider import DouBanBook
-from ..view_models import BookCollection, ResponseViewModel, ResponseModel, BookDetail
+from ..view_models import BookCollection, ResponseModel, BookDetail
 
 
 @api.route('/api/book/search', methods=['GET'])
@@ -52,3 +52,8 @@ def details():
         return ResponseModel(dataObj=BookDetail().fill(book)).to_response()
     else:
         return ResponseModel(dataObj=form.errors).to_response()
+
+
+@api.route('/api/book/hot', methods=['GET'])
+def hot_search():
+    return 'hot'

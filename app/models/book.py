@@ -15,7 +15,7 @@ class BookModel(BaseModel):
     __tablename__ = 'tb_book'
 
     title = Column(String(50), nullable=False, comment='数据的名称')
-    author = Column(String(30), default='未名', comment='作者')
+    author = Column(String(30), default='未知', comment='作者')
     binding = Column(String(20), comment='装帧')
     category = Column(String(20), comment='分类')
     image = Column(String(50), comment='图片地址')

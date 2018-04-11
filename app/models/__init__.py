@@ -14,3 +14,4 @@ from .base import BaseModel
 from .user import User, Sessionkey
 from .book import BookModel
 from .gift import Gift
+from .hot import HotSearch
