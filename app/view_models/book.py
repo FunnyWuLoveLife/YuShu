@@ -11,12 +11,34 @@
 class BookViewModel:
     def __init__(self, book):
         self.title = book['title']
-        # self.author = book['author']
-        # self.publisher = book['publisher'] or ''
         self.image = book['image']
-		self.isbn = book['isbn']
-        # self.summary = book['summary'] or ''
-        # self.price = book['price'] or '未知'
+        self.isbn = book['isbn']
+
+
+class BookDetail:
+    def __init__(self):
+        self.title = ''
+        self.author = '未知'
+        self.publisher = '未知'
+        self.summary = '未知'
+        self.price = '未知'
+        self.image = ''
+        self.isbn = ''
+        self.pages = 0
+        self.binding = '未知'
+
+    def fill(self, book):
+        if book:
+            self.title = book['title']
+            self.author = book['author']
+            self.publisher = book['publisher'] or ''
+            self.summary = ' '+book['summary'].replace(r'.', '') if book['summary'] else ''
+            self.price = '￥' + book['price'] or '未知'
+            self.image = book['image']
+            self.isbn = book['isbn']
+            self.pages = book['pages']
+            self.binding = book['binding']
+        return self
 
 
 class BookCollection:

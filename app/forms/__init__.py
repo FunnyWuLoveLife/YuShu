@@ -7,4 +7,4 @@
 # @contact: agiot1026@163.com
 # @Software: PyCharm
 
-from .book import SearchForm
+from .book import SearchForm, DetailForm

@@ -9,6 +9,7 @@
 from flask import current_app as app
 
 from util.httpHelper import HTTP
+from ..view_models import BookDetail
 
 
 class DouBanBook:
@@ -40,6 +41,10 @@ class DouBanBook:
         result = HTTP.get(url)
         self._fill_collection(result)
         return self
+
+    @classmethod
+    def search_detail_by_isbn(cls, isbn):
+        return HTTP.get(cls._isbn_url.format(isbn))
 
     @classmethod
     def calculate_start(cls, page):
