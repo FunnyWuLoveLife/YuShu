@@ -8,7 +8,7 @@
 # @Software: PyCharm
 import json
 
-from flask import jsonify, request
+from flask import jsonify, request, render_template, flash
 
 from util.common import is_isbn
 
@@ -18,7 +18,7 @@ from ..spider import DouBanBook
 from ..view_models import BookCollection
 
 
-@web.route('/book/search')
+@web.route('/book/search', methods=['Get', 'POST'])
 def search():
     """
     图书检索
@@ -26,6 +26,7 @@ def search():
     """
     # 参数校验
     form = SearchForm(request.args)
+    books = BookCollection()
     if form.validate():
         q = form.q.data.strip()
         dou_book = DouBanBook()
@@ -35,7 +36,13 @@ def search():
         else:
             dou_book.search_by_keyword(q)
 
-        books = BookCollection().fill(dou_book, q)
-        return json.dumps(books, default=lambda o: o.__dict__), 200, {'content-type': 'application/json', }
+        books.fill(dou_book, q)
+
     else:
-        return jsonify(form.errors)
+        flash('搜索的关键字不符合要求，请重新输入关键字')
+    return render_template('search_result.html', books=books)
+
+
+@web.route('/book/<isbn>/detail')
+def book_detail(isbn):
+    pass

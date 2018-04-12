@@ -8,8 +8,12 @@
 # @Software: PyCharm
 from flask import Blueprint
 
-web = Blueprint('web', __name__, static_folder='static', static_url_path='/web/static')
+web = Blueprint('web', __name__, template_folder='templates')
 
 from .book import *
-from .index import *
 from .user import *
+from .main import *
+from .drift import *
+from .auth import *
+from .gift import *
+from .wish import *
