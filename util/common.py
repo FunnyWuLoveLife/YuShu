@@ -42,20 +42,21 @@ def get_openid_and_session_key(appId, secret, code):
 
 
 class Token:
-    def __init__(self, uid):
-        self.uid = uid
+    def __init__(self, oid):
+        self.oid = oid
         pass
 
     def generate_auth_token(self, expiration=3600):
         s = Serializer(app.config['SECRET'], expires_in=expiration)
-        return s.dumps({'uid': self.uid}).decode('UTF-8')
+        return s.dumps({'oid': self.oid}).decode('UTF-8')
 
-    def verify_auth_token(self, token):
+    @classmethod
+    def get_openid(cls, token):
         s = Serializer(app.config['SECRET'])
         try:
-            data = s.loads(token)
+            data = s.loads(token.encode('UTF-8'))
         except SignatureExpired:
-            return False  # valid token, but expired
+            return None  # valid token, but expired
         except BadSignature:
-            return False  # invalid token
-        return data['uid'] == self.uid
+            return None  # invalid token
+        return data['oid']

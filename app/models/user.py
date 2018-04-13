@@ -18,8 +18,8 @@ from util.httpHelper import HTTP
 class User(BaseModel):
     __tablename__ = 'tb_user'
 
-    openId = Column(String(20), unique=True, comment='微信开放平台App唯一id')
-    unionId = Column(String(20), nullable=True, comment='微信开放平台用户唯一id')
+    openId = Column(String(40), unique=True, comment='微信开放平台App唯一id')
+    unionId = Column(String(40), nullable=True, comment='微信开放平台用户唯一id')
 
     nickName = Column(String(20), nullable=False, comment='用户昵称')
     avatarUrl = Column(String(50), nullable=True,
@@ -32,33 +32,16 @@ class User(BaseModel):
     language = Column(String(10), comment='用户的语言，简体中文为zh_CN')
 
 
-class Sessionkey(db.Model):
+class Sessionkey(BaseModel):
     __tablename__ = 'tb_session'
 
-    uid = Column(Integer, ForeignKey('tb_user.id'))
-
-    openId = Column(String(30), primary_key=True, comment='用户唯一标识')
-    sessionKey = Column(String(30), unique=True, nullable=False, comment='会话密钥')
-
-    @classmethod
-    def save(cls, session_key, openid):
-        token = str(uuid4())
-        key = db.session.query(Sessionkey).filter(Sessionkey.openId is openid).first()
-        if key:
-            print(key)
-            # db.session.update(Sessionkey.sessionKey == session_key)
-            pass
-        else:
-            key = Sessionkey()
-            key.sessionKey = session_key
-            key.token = token
-            key.openId = openid
-            db.session.add(key)
-            db.session.commit()
+    openid = Column(String(40), primary_key=True, comment='用户唯一标识')
+    session_key = Column(String(40), unique=True, nullable=False, comment='会话密钥')
 
     @classmethod
     def get_session_key_by_openid(cls, openid):
-        key = db.session.query(Sessionkey.sessionKey).filter(Sessionkey.openId is openid).first()
+        secKey = db.session.query(Sessionkey).filter(Sessionkey.openid == openid).first()
+        key = secKey.session_key if secKey else None
         return key
 
     def __repr__(self):

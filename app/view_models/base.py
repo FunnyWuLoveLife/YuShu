@@ -14,7 +14,10 @@ class ResponseViewModel:
         self.code = code or 200
         self.msg = msg or '请求成功'
 
-        if code == 200:
+        if check and code == 200:
+            self.data = data
+
+        else:
             self.data = data
 
         # 数据不为None和检测的情况下执行

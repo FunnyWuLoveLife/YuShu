@@ -9,5 +9,6 @@
 
 
 class TokenViewModel:
-    def __init__(self, data):
+    def __init__(self, data, openId):
         self.token = data
+        self.openId = openId
