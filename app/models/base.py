@@ -6,10 +6,11 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
+import json
 from datetime import datetime
 
 from sqlalchemy import Column, SmallInteger, Integer, DateTime
-from sqlalchemy.exc import IntegrityError
+from pymysql.err import IntegrityError, InternalError
 
 from . import db
 
@@ -27,16 +28,30 @@ class BaseModel(db.Model):
         ignore.append('id')
         for k, v in attrs_dict.items():
             if hasattr(self, k) and k not in ignore:
+                if isinstance(v, list):
+                    v = ','.join(v)
                 setattr(self, k, v)  # 动态赋值
         return self
 
+    @property
     def save(self):
         try:
             db.session.add(self)
             db.session.commit()
         except IntegrityError as e:
             self.update()
+            db.session.rollback()
+            return
+        except InternalError as e:
+            print(self.__dict__)
+        except Exception as e:
+            # print(json.dumps(self, default=lambda o: o.__dict__))
+            print(self.__dict__)
+            print(e)
+            db.session.rollback()
+        return self
 
     @classmethod
     def update(cls):
-        db.session.commit()
+        # db.session.commit()
+        pass

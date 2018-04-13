@@ -6,16 +6,14 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
-import json
-
-from flask import jsonify, request, render_template, flash
+from flask import request, render_template, flash
 
 from util.common import is_isbn
 
 from . import web
 from ..forms import SearchForm
 from ..spider import DouBanBook
-from ..view_models import BookCollection
+from ..view_models import BookCollection, BookDetail
 
 
 @web.route('/book/search', methods=['Get', 'POST'])
@@ -45,4 +43,6 @@ def search():
 
 @web.route('/book/<isbn>/detail')
 def book_detail(isbn):
-    pass
+    book = BookDetail()
+    book.fill(DouBanBook.search_detail_by_isbn(isbn))
+    return render_template('book_detail.html', book=book, wishes=None, gifts=None)

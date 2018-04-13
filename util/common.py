@@ -46,7 +46,7 @@ class Token:
         self.oid = oid
         pass
 
-    def generate_auth_token(self, expiration=3600):
+    def generate_auth_token(self, expiration=60 * 60 * 24):
         s = Serializer(app.config['SECRET'], expires_in=expiration)
         return s.dumps({'oid': self.oid}).decode('UTF-8')
 

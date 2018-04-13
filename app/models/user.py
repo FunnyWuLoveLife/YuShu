@@ -46,3 +46,15 @@ class Sessionkey(BaseModel):
 
     def __repr__(self):
         return '<Sessionkey: openId=%r, sessionKey=%r>' % (self.openId, self.sessionKey)
+
+    def save(self):
+        secKey = db.session.query(Sessionkey).filter(Sessionkey.openid == self.openid).first()
+        if secKey is None:
+            super.save()
+        else:
+            secKey.session_key = self.session_key
+            try:
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+        return self

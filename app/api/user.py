@@ -43,7 +43,6 @@ def user_info():
 @api.route('/api/user/token/onLogin', methods=['POST'])
 def on_login():
     code = request.json.get('code')
-    print(code)
     if code is None:
         return ResponseModel({}, msg_code=4030, msg='code是必须参数').to_response()
 

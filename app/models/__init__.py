@@ -13,5 +13,5 @@ from .base import BaseModel
 
 from .user import User, Sessionkey
 from .book import BookModel
-from .gift import Gift
+from .gift import Gift, Donate, Wish
 from .hot import HotSearch

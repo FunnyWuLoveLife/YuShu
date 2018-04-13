@@ -9,7 +9,8 @@
 from flask import current_app as app
 
 from util.httpHelper import HTTP
-from ..view_models import BookDetail
+
+from ..models import BookModel
 
 
 class DouBanBook:
@@ -21,8 +22,12 @@ class DouBanBook:
         self.books = []
 
     def search_by_isbn(self, isbn):
-        result = HTTP.get(self._isbn_url.format(isbn))
-        self._fill_single(result)
+        book = BookModel.find_book_by_isbn(isbn)
+        if book:
+            self._fill_single(book)
+        else:
+            result = HTTP.get(self._isbn_url.format(isbn))
+            self._fill_single(result)
         return self
 
     def _fill_single(self, data):
@@ -39,6 +44,9 @@ class DouBanBook:
                                        app.config['PRE_PAGE'],
                                        self.calculate_start(page))
         result = HTTP.get(url)
+        if result:
+            for book in result.get('books', list()):
+                BookModel().set_attrs(book).save
         self._fill_collection(result)
         return self
 

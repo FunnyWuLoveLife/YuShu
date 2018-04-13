@@ -1,3 +1,4 @@
+from flask import render_template
 from . import web
 
 __author__ = '七月'
@@ -5,7 +6,7 @@ __author__ = '七月'
 
 @web.route('/')
 def index():
-    pass
+    return render_template('index.html')
 
 
 @web.route('/personal')
