@@ -33,7 +33,6 @@ class BaseModel(db.Model):
                 setattr(self, k, v)  # 动态赋值
         return self
 
-    @property
     def save(self):
         try:
             db.session.add(self)

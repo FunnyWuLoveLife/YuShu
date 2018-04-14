@@ -32,7 +32,7 @@ def search():
         if is_isbn(q):
             dou_book.search_by_isbn(q)
         else:
-            dou_book.search_by_keyword(q)
+            dou_book.search_by_keyword(q, page=form.page.data)
 
         books.fill(dou_book, q)
 
@@ -44,5 +44,5 @@ def search():
 @web.route('/book/<isbn>/detail')
 def book_detail(isbn):
     book = BookDetail()
-    book.fill(DouBanBook.search_detail_by_isbn(isbn))
+    book.fill(DouBanBook().search_by_isbn(isbn).first)
     return render_template('book_detail.html', book=book, wishes=None, gifts=None)

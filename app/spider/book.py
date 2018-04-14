@@ -46,14 +46,14 @@ class DouBanBook:
         result = HTTP.get(url)
         if result:
             for book in result.get('books', list()):
-                BookModel().set_attrs(book).save
+                BookModel().set_attrs(book).save()
         self._fill_collection(result)
         return self
 
     @classmethod
-    def search_detail_by_isbn(cls, isbn):
-        return HTTP.get(cls._isbn_url.format(isbn))
-
-    @classmethod
     def calculate_start(cls, page):
         return (page - 1) * app.config['PRE_PAGE']
+
+    @property
+    def first(self):
+        return self.books[0]

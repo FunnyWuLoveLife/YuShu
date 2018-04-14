@@ -6,6 +6,7 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
+from ..models import BookModel
 
 
 class BookViewModel:
@@ -26,21 +27,27 @@ class BookDetail:
         self.isbn = ''
         self.pages = 0
         self.binding = '未知'
+        self.pubdate = '未知'
 
     def fill(self, book):
-        if book:
-            self.title = book['title']
-            self.author = book['author']
-            self.publisher = book['publisher'] or ''
-            self.summary = ' ' + book['summary'].replace(r'.', '') if book['summary'] else ''
-            self.price = '￥' + book['price'] or '未知'
-            self.image = book['image']
-            self.isbn = book['isbn']
-            self.pages = book['pages']
-            self.binding = book['binding']
-        else:
-            return None
+        if isinstance(book, dict):
+            self._fill(book)
+        elif isinstance(book, BookModel):
+            self._fill(book.__dict__)
+            pass
         return self
+
+    def _fill(self, book):
+        self.title = book['title']
+        self.author = ','.join(book['author'])
+        self.publisher = book['publisher'] or ''
+        self.summary = ' ' + book['summary'].replace(r'.', '') if book['summary'] else ''
+        self.price = '￥' + book['price'] or '未知'
+        self.image = book['image']
+        self.isbn = book['isbn']
+        self.pages = book['pages']
+        self.binding = book['binding']
+        self.pubdate = book['pubdate']
 
 
 class BookCollection:

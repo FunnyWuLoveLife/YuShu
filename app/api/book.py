@@ -73,7 +73,7 @@ def donate():
     if form.validate():
         isbn = form.isbn.data
         don = Donate(openId, isbn)
-        don.save
+        don.save()
         num = don.query_num(isbn)
         return ResponseModel({"num": num}, check=False).to_response()
     else:

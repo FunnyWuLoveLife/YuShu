@@ -8,3 +8,4 @@
 # @Software: PyCharm
 
 from .book import SearchForm, DetailForm
+from .user import RegisterForm, LoginForm

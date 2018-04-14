@@ -14,6 +14,5 @@ from .book import *
 from .user import *
 from .main import *
 from .drift import *
-from .auth import *
 from .gift import *
 from .wish import *
