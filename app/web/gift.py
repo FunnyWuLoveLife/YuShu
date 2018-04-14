@@ -1,7 +1,7 @@
 from flask import render_template, redirect, current_app, flash, url_for, request
 from flask_login import login_required, current_user
 
-from . import web
+from . import web, BookModel
 from ..models import Gift, db
 
 __author__ = '七月'
@@ -23,6 +23,7 @@ def save_to_gifts(isbn):
         gift = Gift()
         gift.isbn = isbn
         gift.uid = current_user.id
+        # gift.bid = BookModel.find_book_by_isbn(isbn).id
 
         # 鱼豆增加
         current_user.beans += current_app.config['BEANS_UPLOAD_ONE_BOOK']

@@ -26,7 +26,7 @@ class User(BaseModel, UserMixin):
 
     phone_number = Column(String(18), unique=True, comment='用户手机号')
     confirmed = Column(Boolean, default=False, comment='是否验证邮箱地址')
-    beans = Column(Float, default=0, comment='')
+    beans = Column(Float, default=0, comment='鱼豆数量')
     send_counter = Column(Integer, default=0, comment='捐赠数量')
     receive_counter = Column(Integer, default=0, comment='获取数量')
 

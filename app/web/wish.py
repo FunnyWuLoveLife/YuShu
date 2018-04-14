@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, current_app
 from flask_login import current_user
 
 from ..models import Wish
-from . import web
+from . import web, BookModel
 
 __author__ = '七月'
 
@@ -16,6 +16,8 @@ def my_wish():
 def save_to_wish(isbn):
     if current_user.can_save_to_list(isbn):
         wish = Wish(current_user.id, isbn)
+        # wish.bid = BookModel.find_book_by_isbn(isbn).id
+
         if current_user.beans < current_app.config['BEANS_WISH_ONE_BOOK']:
             flash('你的鱼豆余额不足')
             return redirect(url_for('web.book_detail', isbn=isbn))

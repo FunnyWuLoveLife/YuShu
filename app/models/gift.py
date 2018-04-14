@@ -17,8 +17,8 @@ class Gift(BaseModel):
 
     uid = Column(Integer, ForeignKey('tb_user.id'))
 
-    # book = relationship('Book')
-    # bid = Column(Integer, ForeignKey('tb_book.id'), comment='数据id号')
+    book = relationship('Book')
+    bid = Column(Integer, ForeignKey('tb_book.id'), comment='数据id号')
 
     isbn = Column(String(15), nullable=False, comment='唯一isbn号')
 
@@ -54,9 +54,8 @@ class Wish(BaseModel):
     user = relationship('User')
     uid = Column(Integer, ForeignKey('tb_user.id'), comment='用户id')
 
-    # TODO 暂时没保存书籍信息
     # book = relationship('Book')
-    # bid = Column(Integer, ForeignKey('tb_book.id'), comment='数据id号')
+    bid = Column(Integer, ForeignKey('tb_book.id'), comment='数据id号')
 
     isbn = Column(String(15), nullable=False, comment='唯一isbn号')
     launched = Column(Boolean, default=False, comment='礼物是否送出')
