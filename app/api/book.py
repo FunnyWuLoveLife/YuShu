@@ -48,11 +48,11 @@ def details():
     form = DetailForm(request.args)
     if form.validate():
         isbn = form.isbn.data
-        book = BookViewModel().fill(DouBanBook.search_detail_by_isbn(isbn))
+        book = BookViewModel().fill(DouBanBook().search_by_isbn(isbn))
         gift_num = Donate.query_num(isbn)
         wish_num = Wish.query_num(isbn)
-        book_deatil = BookDetail(book, {'num': gift_num}, {"num": wish_num})
-        return ResponseModel(dataObj=book_deatil).to_response()
+        book_detail = BookDetail(book, {'num': gift_num}, {"num": wish_num})
+        return ResponseModel(dataObj=book_detail).to_response()
     else:
         return ResponseModel(dataObj=form.errors).to_response()
 
@@ -96,7 +96,7 @@ def addWish():
     if form.validate():
         isbn = form.isbn.data
         wis = Wish(openId, isbn)
-        wis.save
+        wis.save()
         num = wis.query_num(isbn)
         return ResponseModel({"num": num}, check=False).to_response()
     else:

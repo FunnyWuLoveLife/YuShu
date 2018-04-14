@@ -7,8 +7,11 @@
 # @contact: agiot1026@163.com
 # @Software: PyCharm
 from flask import Flask
+from flask_login import LoginManager
 
-from .models import db
+from .models import db, User
+
+login_manager = LoginManager()
 
 
 def create_app():
@@ -16,6 +19,9 @@ def create_app():
     app.config.from_object('app.secure')
     app.config.from_object('app.setting')
 
+    login_manager.init_app(app)
+    login_manager.login_view = 'web.login'
+    login_manager.login_message = '请先登录或注册'
     # 初始化蓝图
     register_buleprint(app)
 
@@ -28,6 +34,11 @@ def create_app():
     db.create_all(app=app)
 
     return app
+
+
+@login_manager.user_loader
+def get_user(uid):
+    return User.query.get((int(uid)))
 
 
 def register_buleprint(app):

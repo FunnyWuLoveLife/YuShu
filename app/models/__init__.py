@@ -6,9 +6,25 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
-from flask_sqlalchemy import SQLAlchemy
+from contextlib import contextmanager
+from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy
+
+
+class SQLAlchemy(_SQLAlchemy):
+    @contextmanager
+    def auto_commit(self):
+        try:
+            yield
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            # TODO 异常处理需要完善
+            # print(e)
+            # raise e
+
 
 db = SQLAlchemy()
+
 from .base import BaseModel
 
 from .user import User, Sessionkey

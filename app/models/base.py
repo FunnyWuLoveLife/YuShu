@@ -6,11 +6,9 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
-import json
 from datetime import datetime
 
 from sqlalchemy import Column, SmallInteger, Integer, DateTime
-from pymysql.err import IntegrityError, InternalError
 
 from . import db
 
@@ -21,8 +19,11 @@ class BaseModel(db.Model):
     id = Column(Integer, primary_key=True, autoincrement=True, comment='自增主键')
 
     status = Column(SmallInteger, default=1, comment='软删除状态，1表示未删除，0表示删除')
-    create_time = Column(DateTime, default=datetime.now(), comment='创建时间')
-    update_time = Column(DateTime, onupdate=datetime.now(), comment='数据更新时间')
+    create_time = Column('create_time', Integer, comment='创建时间')
+    update_time = Column(Integer, onupdate=int(datetime.now().timestamp()), comment='数据更新时间')
+
+    def __init__(self):
+        self.create_time = int(datetime.now().timestamp())
 
     def set_attrs(self, attrs_dict, ignore=list()):
         ignore.append('id')
@@ -34,20 +35,8 @@ class BaseModel(db.Model):
         return self
 
     def save(self):
-        try:
+        with db.auto_commit():
             db.session.add(self)
-            db.session.commit()
-        except IntegrityError as e:
-            self.update()
-            db.session.rollback()
-            return
-        except InternalError as e:
-            print(self.__dict__)
-        except Exception as e:
-            # print(json.dumps(self, default=lambda o: o.__dict__))
-            print(self.__dict__)
-            print(e)
-            db.session.rollback()
         return self
 
     @classmethod

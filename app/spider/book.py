@@ -10,7 +10,7 @@ from flask import current_app as app
 
 from util.httpHelper import HTTP
 
-from ..models import BookModel
+from ..models.book import BookModel
 
 
 class DouBanBook:

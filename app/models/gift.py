@@ -17,9 +17,15 @@ class Gift(BaseModel):
 
     uid = Column(Integer, ForeignKey('tb_user.id'))
 
+    # book = relationship('Book')
+    # bid = Column(Integer, ForeignKey('tb_book.id'), comment='数据id号')
+
     isbn = Column(String(15), nullable=False, comment='唯一isbn号')
 
-    launched = Column(Boolean, comment='图书是否已经送出')
+    launched = Column(Boolean, default=False, comment='图书是否已经送出')
+
+    def find_user_gift(self):
+        return self.query.filter_by(uid=self.uid).all()
 
 
 class Donate(BaseModel):
@@ -31,9 +37,10 @@ class Donate(BaseModel):
     isbn = Column(String(15), nullable=False, comment='唯一isbn号')
     launched = Column(Boolean, default=False, comment='礼物是否送出')
 
-    def __init__(self, oid, isbn):
-        self.oid = oid
+    def __init__(self, uid, isbn):
+        self.uid = uid
         self.isbn = isbn
+        super(Donate, self).__init__()
 
     @classmethod
     def query_num(cls, isbn):
@@ -52,10 +59,12 @@ class Wish(BaseModel):
     # bid = Column(Integer, ForeignKey('tb_book.id'), comment='数据id号')
 
     isbn = Column(String(15), nullable=False, comment='唯一isbn号')
+    launched = Column(Boolean, default=False, comment='礼物是否送出')
 
-    def __init__(self, oid, isbn):
-        self.oid = oid
+    def __init__(self, uid=None, isbn=None):
+        self.uid = uid
         self.isbn = isbn
+        super(Wish, self).__init__()
 
     @classmethod
     def query_num(cls, isbn):

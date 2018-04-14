@@ -1,18 +1,22 @@
 #!/usr/bin/python
 # encoding: utf-8
 
-# @file: User.py
+# @file: user.py
 # @time: 2018/4/9 17:02
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Float
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
-from . import BaseModel, db
+from util.common import is_isbn
+from .base import BaseModel, db
+from .gift import Gift, Wish
+from ..spider import DouBanBook
 
 
-class User(BaseModel):
+class User(BaseModel, UserMixin):
     __tablename__ = 'tb_user'
 
     # 平台
@@ -46,6 +50,30 @@ class User(BaseModel):
     @password.setter
     def password(self, raw):
         self._password = generate_password_hash(raw)
+
+    def check_password(self, raw):
+        return check_password_hash(self._password, raw)
+
+    def can_save_to_list(self, isbn):
+        """
+        判断用户是否已经填本书到赠送清单或者心愿清单，且判断该书是否存在
+        :param isbn:<str> 图书的isbn编号
+        :return: <bool>: 如果用户能将该书添加至心愿清单或者赠送清单返回True,else False
+        """
+        if not is_isbn(isbn):
+            return False
+        dou_book = DouBanBook()
+        dou_book.search_by_isbn(isbn)
+        if not dou_book.first:
+            return False
+
+        # 不允许一个用户同时是赠送者又是索要者
+        gifting = Gift.query.filter_by(uid=self.id, isbn=isbn, launched=False).first()
+        wishing = Wish.query.filter_by(uid=self.id, isbn=isbn, launched=False).first()
+        if not gifting and not wishing:
+            return True
+        else:
+            return False
 
 
 class Sessionkey(BaseModel):
