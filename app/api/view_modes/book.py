@@ -28,7 +28,7 @@ class BookViewModel:
             self.author = book['author']
             self.publisher = book['publisher'] or ''
             self.summary = ' ' + book['summary'].replace(r'.', '') if book['summary'] else ''
-            self.price = '￥' + book['price'] or '未知'
+            self.price = '￥' + book.get('price') if book.get('price') else '未知'
             self.image = book['image']
             self.isbn = book['isbn']
             self.pages = book['pages']

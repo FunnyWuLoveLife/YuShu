@@ -47,26 +47,9 @@ class Gift(BaseModel):
     @property
     def wishes_count(self):
         return len(Wish.query.filter_by(isbn=self.isbn, launched=False).all())
-
-
-class Donate(BaseModel):
-    __tablename__ = 'tb_donate'
-
-    user = relationship('User')
-    uid = Column(Integer, ForeignKey('tb_user.id'), comment='用户id')
-
-    isbn = Column(String(15), nullable=False, comment='唯一isbn号')
-    launched = Column(Boolean, default=False, comment='礼物是否送出')
-
-    def __init__(self, uid, isbn):
-        self.uid = uid
-        self.isbn = isbn
-        super(Donate, self).__init__()
-
-    @classmethod
-    def query_num(cls, isbn):
-        num = db.session.query(Donate).filter(and_(Donate.launched is False, Donate.isbn == isbn)).count()
-        return num
+    @property
+    def gifts_count(self):
+        return len(Gift.query.filter_by(isbn=self.isbn, launched=False).all())
 
 
 class Wish(BaseModel):
@@ -81,9 +64,10 @@ class Wish(BaseModel):
     isbn = Column(String(15), nullable=False, comment='唯一isbn号')
     launched = Column(Boolean, default=False, comment='礼物是否送出')
 
-    def __init__(self, uid=None, isbn=None):
+    def __init__(self, uid=None, isbn=None, bid=None):
         self.uid = uid
         self.isbn = isbn
+        self.bid = bid
         super(Wish, self).__init__()
 
     @classmethod
@@ -102,3 +86,7 @@ class Wish(BaseModel):
     @property
     def gifts_count(self):
         return len(Gift.query.filter_by(isbn=self.isbn, launched=False).all())
+
+    @property
+    def wishes_count(self):
+        return len(Wish.query.filter_by(isbn=self.isbn, launched=False).all())

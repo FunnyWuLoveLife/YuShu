@@ -9,10 +9,11 @@
 from flask import request, current_app as app
 
 from . import api
-from ..view_models import ResponseModel, TokenViewModel
+from .view_modes import ResponseModel, TokenViewModel, UserViewModel
 from util.common import get_openid_and_session_key, Token
 from util.WXBizDataCrypt import WXBizDataCrypt
 from ..models import User, Sessionkey
+from ..error import ErrorCode
 
 
 @api.route('/api/user/info', methods=['POST'])
@@ -31,16 +32,25 @@ def user_info():
                       msg='openid不存在，无session_key', check=False).to_response()
 
     secKey = Sessionkey.get_session_key_by_openid(oid)
+    if secKey is None:
+        print('用户秘钥不存在')
+        return ResponseModel(code=200,
+                             msg_code=ErrorCode.IS_REGISTER_WX,
+                             msg='用户秘钥不存在',
+                             check=False).to_response()
+
     wx = WXBizDataCrypt(app.config['APPID'], secKey)
     try:
         decryptedData = wx.decrypt(encryptedData, iv)
     except Exception as e:
+        print(e)
         return ResponseModel(code=200, msg_code=4030,
                              msg='解码错误', check=False).to_response()
     user = User().set_attrs(decryptedData)
-    user.save()
-
-    return ResponseModel(code=200, msg_code=200,
+    uv = UserViewModel(user)
+    if not user.isRegisterWx:
+        user.save()
+    return ResponseModel(uv,
                          msg='保存用户信息成功',
                          check=False).to_response()
 
@@ -59,6 +69,7 @@ def on_login():
                                  msg='微信登录接口错误', check=False).to_response()
 
         secKey = Sessionkey().set_attrs(res)
+        print(secKey.session_key)
         secKey.save()
         token = Token(openId).generate_auth_token()
         return ResponseModel(TokenViewModel(token, openId)).to_response()

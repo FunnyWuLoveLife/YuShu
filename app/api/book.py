@@ -6,7 +6,7 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
-from flask import request
+from flask import request, current_app
 
 from util.common import is_isbn, Token
 
@@ -14,7 +14,7 @@ from . import api
 from .view_modes import BookCollection, ResponseModel, BookViewModel, BookDetail
 from ..forms import SearchForm, IsbnForm
 from ..spider import DouBanBook
-from ..models import Donate, Wish, Gift
+from ..models import Wish, Gift, BookModel, User
 from ..error import ErrorCode
 
 
@@ -45,6 +45,8 @@ def search():
 
 @api.route('/api/book/details', methods=['GET'])
 def details():
+    token = request.headers.get('token')
+
     form = IsbnForm(request.args)
     if form.validate():
         isbn = form.isbn.data
@@ -55,9 +57,13 @@ def details():
                                  msg='未查找到相应图书', check=False).to_response()
 
         book = BookViewModel().fill(book)
-        gift_num = Donate.query_num(isbn)
-        wish_num = Wish.query_num(isbn)
-        book_detail = BookDetail(book, {'num': gift_num}, {"num": wish_num})
+
+        gift = Gift()
+        gift.isbn = isbn
+        wish = Wish()
+        wish.isbn = isbn
+
+        book_detail = BookDetail(book, {'num': gift.gifts_count}, {"num": wish.wishes_count})
         return ResponseModel(dataObj=book_detail).to_response()
     else:
         return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
@@ -65,50 +71,67 @@ def details():
                              ).to_response()
 
 
-@api.route('/api/book/donate', methods=['GET'])
+@api.route('/api/book/gift', methods=['GET'])
 def donate():
     token = request.headers.get('token')
-    form = DetailForm(request.args)
-    if token is None:
-        return ResponseModel(code=401, msg_code=4010, msg='token是必须参数',
-                             check=False).to_response()
-
     openId = Token.get_openid(token)
-    if openId is None:
-        return ResponseModel(code=401, msg_code=4010, msg='token无效请登录',
+    form = IsbnForm(request.args)
+    if token is None or openId is None:
+        return ResponseModel(msg_code=ErrorCode.TOKEN_IS_MUST,
+                             msg='Token无效请登录',
                              check=False).to_response()
 
     if form.validate():
         isbn = form.isbn.data
-        don = Donate(openId, isbn)
-        don.save()
-        num = don.query_num(isbn)
-        return ResponseModel({"num": num}, check=False).to_response()
+        user = User.find_user_by_openid(openId)
+        if user.can_save_to_list(isbn):
+            gift = Gift()
+            gift.bid = BookModel.find_book_by_isbn(isbn).id
+
+            gift.uid = user.id
+            gift.isbn = isbn
+            # 赠书成本，鱼豆增加
+            user.beans += current_app.config['BEANS_UPLOAD_ONE_BOOK']
+            gift.save()
+            return ResponseModel({"num": gift.gifts_count}, check=False).to_response()
+        else:
+            return ResponseModel(msg_code=ErrorCode.ALREADY_IN_GIFT_OR_WISH,
+                                 msg='这本书已经添加至你的赠送清单或已存在于你的心意清单，请不要重复添加',
+                                 check=False).to_response()
     else:
-        return ResponseModel(form.errors, check=False).to_response()
+        return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
+                             msg='ISBN编号错误',
+                             check=False).to_response()
 
 
 @api.route('/api/book/wish')
 def addWish():
     token = request.headers.get('token')
-    form = IsbnForm(request.args)
-    if token is None:
-        return ResponseModel(code=401, msg_code=4010, msg='token是必须参数',
-                             check=False).to_response()
-
     openId = Token.get_openid(token)
-    if openId is None:
-        return ResponseModel(code=401, msg_code=4010, msg='token无效请登录',
+    form = IsbnForm(request.args)
+    if token is None or openId is None:
+        return ResponseModel(msg_code=ErrorCode.TOKEN_IS_MUST,
+                             msg='Token无效请登录',
                              check=False).to_response()
 
     if form.validate():
         isbn = form.isbn.data
-        wis = Wish(openId, isbn)
-        wis.save()
-        num = wis.query_num(isbn)
-        return ResponseModel({"num": num}, check=False).to_response()
+        user = User.find_user_by_openid(openId)
+        if user.can_save_to_list(isbn):
+            bid = BookModel.find_book_by_isbn(isbn).id
+            wis = Wish(user.id, isbn, bid)
+
+            user.beans -= current_app.config['BEANS_WISH_ONE_BOOK']
+            wis.save()
+            return ResponseModel({"num": wis.wishes_count}, check=False).to_response()
+        else:
+            return ResponseModel(msg_code=ErrorCode.ALREADY_IN_GIFT_OR_WISH,
+                                 msg='这本书已经添加至你的赠送清单或已存在于你的心意清单，请不要重复添加',
+                                 check=False).to_response()
     else:
-        return ResponseModel(form.errors, check=False).to_response()
+        return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
+                             msg='ISBN编号错误',
+                             check=False).to_response()
 
 
 @api.route('/api/book/recent')

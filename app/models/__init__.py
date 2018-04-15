@@ -38,5 +38,5 @@ from .base import BaseModel
 
 from .user import User, Sessionkey
 from .book import BookModel
-from .gift import Gift, Donate, Wish
+from .gift import Gift, Wish
 from .hot import HotSearch

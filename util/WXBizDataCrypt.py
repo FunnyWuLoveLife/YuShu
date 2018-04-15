@@ -23,5 +23,9 @@ class WXBizDataCrypt:
 
     def _unpad(self, s):
         if isinstance(s, bytes):
-            s = s.decode('UTF-8')
+            try:
+                s = s.decode('UTF-8')
+            except Exception as e:
+                print(s)
+                raise e
         return s[:-ord(s[len(s) - 1:])]

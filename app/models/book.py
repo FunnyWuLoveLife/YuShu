@@ -28,5 +28,4 @@ class BookModel(BaseModel):
 
     @classmethod
     def find_book_by_isbn(cls, isbn):
-        book = db.session.query(BookModel).filter(BookModel.isbn == isbn).first()
-        return book
+        return cls.query.filter_by(isbn=isbn).first()

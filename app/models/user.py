@@ -83,6 +83,14 @@ class User(BaseModel, UserMixin):
     def receive_count(self):
         return len(Wish.query.filter_by(uid=self.id, launched=True).all())
 
+    @property
+    def isRegisterWx(self):
+        """
+        判断微信账号是否已经注册
+        :return:
+        """
+        return self.query.filter_by(openId=self.openId).first()
+
     def set_attrs(self, attrs_dict, ignore=list()):
         ignore.append('id')
         for k, v in attrs_dict.items():
@@ -93,6 +101,10 @@ class User(BaseModel, UserMixin):
                     v = ','.join(v)
                 setattr(self, k, v)  # 动态赋值
         return self
+
+    @classmethod
+    def find_user_by_openid(cls, openid):
+        return cls.query.filter_by(openId=openid).first()
 
 
 class Sessionkey(BaseModel):
