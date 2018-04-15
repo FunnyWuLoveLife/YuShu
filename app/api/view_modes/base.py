@@ -33,9 +33,9 @@ class ResponseModel:
     }
 
     def __init__(self, dataObj=None, code=200, msg_code=200, msg=None, check=True):
+        self.code = 200
         if check:
             # 参数错误
-            self.code = code
 
             if dataObj is None:
                 self.code = 404

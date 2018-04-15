@@ -9,4 +9,5 @@
 
 from .base import ResponseViewModel, ResponseModel
 from .book import BookViewModel, BookCollection, BookDetail
-from .user import TokenViewModel
+from .user import TokenViewModel,UserViewModel
+from .trade import TradeInfo

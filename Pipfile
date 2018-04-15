@@ -1,7 +1,7 @@
 [[source]]
 
 verify_ssl = true
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+url = "http://pypi.douban.com/simple"
 name = "pypi"
 
 
@@ -18,7 +18,8 @@ pymysql = "*"
 requests = "*"
 pycryptodome = "*"
 itsdangerous = "*"
-
+flask-login = "*"
+flask-restful = "*"
 
 [requires]
 

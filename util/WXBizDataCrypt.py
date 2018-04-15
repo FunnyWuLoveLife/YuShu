@@ -22,4 +22,6 @@ class WXBizDataCrypt:
         return decrypted
 
     def _unpad(self, s):
+        if isinstance(s, bytes):
+            s = s.decode('UTF-8')
         return s[:-ord(s[len(s) - 1:])]

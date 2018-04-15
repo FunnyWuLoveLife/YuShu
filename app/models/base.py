@@ -43,3 +43,10 @@ class BaseModel(db.Model):
     def update(cls):
         # db.session.commit()
         pass
+
+    @property
+    def create_datetime(self):
+        if self.create_time:
+            return datetime.fromtimestamp(self.create_time)
+        else:
+            return None

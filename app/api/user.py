@@ -22,22 +22,27 @@ def user_info():
     iv = data.get('iv')
     token = request.headers['token']
     if token:
-        ResponseModel(code=403, msg_code=4030,
-                      msg='未授权', check=False).to_response()
+        ResponseModel(code=200, msg_code=4030,
+                      msg='token失效', check=False).to_response()
+
     oid = Token.get_openid(token)
     if oid is None:
-        ResponseModel(code=403, msg_code=4030,
-                      msg='未授权', check=False).to_response()
+        ResponseModel(code=200, msg_code=4030,
+                      msg='openid不存在，无session_key', check=False).to_response()
+
     secKey = Sessionkey.get_session_key_by_openid(oid)
     wx = WXBizDataCrypt(app.config['APPID'], secKey)
     try:
         decryptedData = wx.decrypt(encryptedData, iv)
     except Exception as e:
-        return ResponseModel(code=403, msg_code=4030,
-                             msg='未授权', check=False).to_response()
+        return ResponseModel(code=200, msg_code=4030,
+                             msg='解码错误', check=False).to_response()
     user = User().set_attrs(decryptedData)
     user.save()
-    return 'user.info'
+
+    return ResponseModel(code=200, msg_code=200,
+                         msg='保存用户信息成功',
+                         check=False).to_response()
 
 
 @api.route('/api/user/token/onLogin', methods=['POST'])

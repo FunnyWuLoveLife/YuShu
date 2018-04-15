@@ -35,9 +35,12 @@ class DouBanBook:
             self.total = 1
             self.books.append(data)
 
+        return self
+
     def _fill_collection(self, data):
         self.total = data['total']
         self.books = data['books']
+        return self
 
     def search_by_keyword(self, keyword, page=1):
         url = self._keyword_url.format(keyword,
@@ -56,4 +59,7 @@ class DouBanBook:
 
     @property
     def first(self):
-        return self.books[0]
+        if self.total >= 1:
+            return self.books[0]
+        else:
+            return None

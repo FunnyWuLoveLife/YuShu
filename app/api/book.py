@@ -12,10 +12,10 @@ from util.common import is_isbn, Token
 
 from . import api
 from .view_modes import BookCollection, ResponseModel, BookViewModel, BookDetail
-
-from ..forms import SearchForm, DetailForm
+from ..forms import SearchForm, IsbnForm
 from ..spider import DouBanBook
-from ..models import Donate, Wish
+from ..models import Donate, Wish, Gift
+from ..error import ErrorCode
 
 
 @api.route('/api/book/search', methods=['GET'])
@@ -45,16 +45,24 @@ def search():
 
 @api.route('/api/book/details', methods=['GET'])
 def details():
-    form = DetailForm(request.args)
+    form = IsbnForm(request.args)
     if form.validate():
         isbn = form.isbn.data
-        book = BookViewModel().fill(DouBanBook().search_by_isbn(isbn))
+        book = DouBanBook().search_by_isbn(isbn).first
+        # 未查找到图书
+        if not book:
+            return ResponseModel(code=200, msg_code=ErrorCode.BOOK_NOT_FIND,
+                                 msg='未查找到相应图书', check=False).to_response()
+
+        book = BookViewModel().fill(book)
         gift_num = Donate.query_num(isbn)
         wish_num = Wish.query_num(isbn)
         book_detail = BookDetail(book, {'num': gift_num}, {"num": wish_num})
         return ResponseModel(dataObj=book_detail).to_response()
     else:
-        return ResponseModel(dataObj=form.errors).to_response()
+        return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
+                             msg='ISBN编号错误', check=False
+                             ).to_response()
 
 
 @api.route('/api/book/donate', methods=['GET'])
@@ -83,7 +91,7 @@ def donate():
 @api.route('/api/book/wish')
 def addWish():
     token = request.headers.get('token')
-    form = DetailForm(request.args)
+    form = IsbnForm(request.args)
     if token is None:
         return ResponseModel(code=401, msg_code=4010, msg='token是必须参数',
                              check=False).to_response()
@@ -103,6 +111,8 @@ def addWish():
         return ResponseModel(form.errors, check=False).to_response()
 
 
-@api.route('/api/book/hot', methods=['GET'])
-def hot_search():
-    return 'hot'
+@api.route('/api/book/recent')
+def recent_gift():
+    recent_gifts = Gift.recent()
+    recent_books = [BookViewModel(gift.book) for gift in recent_gifts]
+    return ResponseModel(dataObj=recent_books).to_response()

@@ -7,7 +7,7 @@
 # @contact: agiot1026@163.com
 # @Software: PyCharm
 from contextlib import contextmanager
-from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy, BaseQuery
 
 
 class SQLAlchemy(_SQLAlchemy):
@@ -17,13 +17,22 @@ class SQLAlchemy(_SQLAlchemy):
             yield
             self.session.commit()
         except Exception as e:
+            print(e)
             self.session.rollback()
             # TODO 异常处理需要完善
             # print(e)
             # raise e
 
 
-db = SQLAlchemy()
+class Query(BaseQuery):
+    def filter_by(self, **kwargs):
+        if 'status' not in kwargs.keys():
+            kwargs['status'] = 1
+
+        return super(Query, self).filter_by(**kwargs)
+
+
+db = SQLAlchemy(query_class=Query)
 
 from .base import BaseModel
 

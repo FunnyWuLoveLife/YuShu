@@ -1,8 +1,8 @@
 from flask import render_template, redirect, current_app, flash, url_for, request
 from flask_login import login_required, current_user
 
-from . import web, BookModel
-from ..models import Gift, db
+from . import web
+from ..models import Gift, BookModel
 
 __author__ = '七月'
 
@@ -10,9 +10,7 @@ __author__ = '七月'
 @web.route('/my/gifts')
 @login_required
 def my_gifts():
-    gift = Gift()
-    gift.uid = current_user.id
-    gifts = gift.find_user_gift()
+    gifts = Gift.find_user_gift(current_user.id)
     return render_template('my_gifts.html', gifts=gifts)
 
 
@@ -23,7 +21,7 @@ def save_to_gifts(isbn):
         gift = Gift()
         gift.isbn = isbn
         gift.uid = current_user.id
-        # gift.bid = BookModel.find_book_by_isbn(isbn).id
+        gift.bid = BookModel.find_book_by_isbn(isbn).id
 
         # 鱼豆增加
         current_user.beans += current_app.config['BEANS_UPLOAD_ONE_BOOK']

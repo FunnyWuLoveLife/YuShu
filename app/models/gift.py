@@ -6,26 +6,47 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
-from sqlalchemy import Column, Integer, ForeignKey, String, Boolean, and_
+from sqlalchemy import Column, Integer, ForeignKey, String, Boolean, and_, desc
 from sqlalchemy.orm import relationship
+from flask import current_app
 
-from . import BaseModel, db
+from .base import BaseModel, db
+from .book import BookModel
 
 
 class Gift(BaseModel):
     __tablename__ = 'tb_gitf'
 
-    uid = Column(Integer, ForeignKey('tb_user.id'))
+    user = relationship('User')
+    uid = Column(Integer, ForeignKey('tb_user.id'), nullable=False)
 
-    book = relationship('Book')
-    bid = Column(Integer, ForeignKey('tb_book.id'), comment='数据id号')
+    # book = relationship('Book')
+    bid = Column(Integer, ForeignKey('tb_book.id'), nullable=False, comment='数据id号')
 
     isbn = Column(String(15), nullable=False, comment='唯一isbn号')
 
     launched = Column(Boolean, default=False, comment='图书是否已经送出')
 
-    def find_user_gift(self):
-        return self.query.filter_by(uid=self.uid).all()
+    @property
+    def book(self):
+        return BookModel.query.filter_by(isbn=self.isbn).first()
+
+    @classmethod
+    def find_user_gift(cls, uid):
+        return cls.query.filter_by(uid=uid).order_by(desc(Gift.create_time)).all()
+
+    @classmethod
+    def recent(cls):
+        recent_gifs = Gift.query.filter_by(launched=False).group_by(
+            Gift.isbn).order_by(
+            desc(Gift.create_time)).limit(
+            current_app.config['RECENT_BOOK_COUNT']).all()
+        return recent_gifs
+
+    # TODO 这种方式存在效率问题，前期不用考虑
+    @property
+    def wishes_count(self):
+        return len(Wish.query.filter_by(isbn=self.isbn, launched=False).all())
 
 
 class Donate(BaseModel):
@@ -69,3 +90,15 @@ class Wish(BaseModel):
     def query_num(cls, isbn):
         num = db.session.query(Wish).filter(and_(Wish.status == 1, Wish.isbn == isbn)).count()
         return num
+
+    @property
+    def book(self):
+        return BookModel.query.filter_by(isbn=self.isbn).first()
+
+    @classmethod
+    def find_user_wishes(cls, uid):
+        return cls.query.filter_by(uid=uid).order_by(desc(Wish.create_time)).all()
+
+    @property
+    def gifts_count(self):
+        return len(Gift.query.filter_by(isbn=self.isbn, launched=False).all())

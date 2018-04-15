@@ -9,14 +9,15 @@ __author__ = '七月'
 
 @web.route('/my/wish')
 def my_wish():
-    return render_template('my_wish.html', wishes=[])
+    wishes = Wish.find_user_wishes(current_user.id)
+    return render_template('my_wish.html', wishes=wishes)
 
 
 @web.route('/wish/book/<isbn>')
 def save_to_wish(isbn):
     if current_user.can_save_to_list(isbn):
         wish = Wish(current_user.id, isbn)
-        # wish.bid = BookModel.find_book_by_isbn(isbn).id
+        wish.bid = BookModel.find_book_by_isbn(isbn).id
 
         if current_user.beans < current_app.config['BEANS_WISH_ONE_BOOK']:
             flash('你的鱼豆余额不足')

@@ -16,5 +16,5 @@ class SearchForm(Form):
     page = IntegerField(validators=[NumberRange(min=1, max=99)], default=1)
 
 
-class DetailForm(Form):
+class IsbnForm(Form):
     isbn = StringField(validators=[DataRequired(), Length(min=10, max=13)])

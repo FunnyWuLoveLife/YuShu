@@ -12,10 +12,12 @@ from wtforms.validators import DataRequired, Length, Email, ValidationError
 from ..models import User
 
 
-class RegisterForm(Form):
+class EmailForm(Form):
     email = StringField(validators=[DataRequired(), Length(8, 64),
                                     Email(message='电子邮件不符合规范')])
 
+
+class RegisterForm(EmailForm):
     password = PasswordField(validators=[
         DataRequired(message='密码不能为空，请输入你的密码'), Length(6, 32)])
     nickname = StringField(validators=[
@@ -30,9 +32,17 @@ class RegisterForm(Form):
             raise ValidationError('该昵称已存在')
 
 
-class LoginForm(Form):
-    email = StringField(validators=[DataRequired(), Length(8, 64),
-                                    Email(message='电子邮件不符合规范')])
-
+class LoginForm(EmailForm):
     password = PasswordField(validators=[
         DataRequired(message='密码不能为空，请输入你的密码'), Length(6, 32)])
+
+
+class ChangePasswordForm(Form):
+    password1 = PasswordField(validators=[
+        DataRequired(message='密码不能为空，请输入你的密码'), Length(6, 32, message='密码应该是6到32位字符串，请重新输入')])
+    password2 = PasswordField(validators=[
+        DataRequired(message='密码不能为空，请输入你的密码'), Length(6, 32, message='密码应该是6到32位字符串，请重新输入')])
+
+    def validate_password2(self, field):
+        if self.password1.data != field.data:
+            raise ValidationError('两次密码不一致，请重新输入')

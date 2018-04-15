@@ -22,8 +22,10 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'web.login'
     login_manager.login_message = '请先登录或注册'
+
     # 初始化蓝图
     register_buleprint(app)
+    # register_api(app)
 
     # 绑定数据库
     db.init_app(app)
@@ -39,6 +41,11 @@ def create_app():
 @login_manager.user_loader
 def get_user(uid):
     return User.query.get((int(uid)))
+
+
+def register_api(app):
+    from .api import api
+    api.init_app(app)
 
 
 def register_buleprint(app):

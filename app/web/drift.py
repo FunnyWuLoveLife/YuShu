@@ -1,3 +1,5 @@
+from flask import render_template
+
 from . import web
 
 __author__ = '七月'
@@ -10,6 +12,7 @@ def send_drift(gid):
 
 @web.route('/pending')
 def pending():
+    return render_template('pending.html')
     pass
 
 

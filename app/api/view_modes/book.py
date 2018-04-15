@@ -9,7 +9,7 @@
 
 
 class BookViewModel:
-    def __init__(self):
+    def __init__(self, book=None):
         self.title = ''
         self.author = '未知'
         self.publisher = '未知'
@@ -19,6 +19,8 @@ class BookViewModel:
         self.isbn = ''
         self.pages = 0
         self.binding = '未知'
+        if book:
+            self.fill(book)
 
     def fill(self, book, ignore=list()):
         if isinstance(book, dict):

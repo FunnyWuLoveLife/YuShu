@@ -34,7 +34,7 @@ class User(BaseModel, UserMixin):
     openId = Column(String(40), unique=True, comment='微信开放平台App唯一id')
     unionId = Column(String(40), nullable=True, comment='微信开放平台用户唯一id')
 
-    avatarUrl = Column(String(50), nullable=True,
+    avatarUrl = Column(String(500), nullable=True,
                        comment='用户头像，最后一个数值代表正方形头像大小（有0、46、64、96、132数值可选，'
                                '0代表640*640正方形头像），用户没有头像时该项为空。若用户更换头像，原有头像URL将失效。')
     gender = Column(String(1), comment='用户的性别，值为1时是男性，值为2时是女性，值为0时是未知')
@@ -75,6 +75,25 @@ class User(BaseModel, UserMixin):
         else:
             return False
 
+    @property
+    def send_count(self):
+        return len(db.session.query(Gift).filter(Gift.uid == self.id).all())
+
+    @property
+    def receive_count(self):
+        return len(Wish.query.filter_by(uid=self.id, launched=True).all())
+
+    def set_attrs(self, attrs_dict, ignore=list()):
+        ignore.append('id')
+        for k, v in attrs_dict.items():
+            if k == 'nickName':
+                k = 'nickname'
+            if hasattr(self, k) and k not in ignore:
+                if isinstance(v, list):
+                    v = ','.join(v)
+                setattr(self, k, v)  # 动态赋值
+        return self
+
 
 class Sessionkey(BaseModel):
     __tablename__ = 'tb_session'
@@ -89,13 +108,12 @@ class Sessionkey(BaseModel):
         return key
 
     def __repr__(self):
-        return '<Sessionkey: openId=%r, sessionKey=%r>' % (self.openId, self.sessionKey)
+        return '<Sessionkey: openId=%r, sessionKey=%r>' % (self.openid, self.session_key)
 
     def save(self):
         secKey = db.session.query(Sessionkey).filter(Sessionkey.openid == self.openid).first()
         if secKey is None:
-            # TODO
-            pass
+            super(Sessionkey, self).save()
         else:
             secKey.session_key = self.session_key
             try:

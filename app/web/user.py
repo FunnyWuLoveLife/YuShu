@@ -7,10 +7,10 @@
 # @contact: agiot1026@163.com
 # @Software: PyCharm
 from flask import render_template, request, redirect, url_for, flash
-from flask_login import login_user
+from flask_login import login_user, logout_user, login_required
 
 from . import web
-from ..forms import RegisterForm, LoginForm
+from ..forms import RegisterForm, LoginForm, ChangePasswordForm, EmailForm
 from ..models import User
 
 __author__ = '七月'
@@ -49,7 +49,22 @@ def login():
 
 @web.route('/reset/password', methods=['GET', 'POST'])
 def forget_password_request():
-    pass
+    """
+    重置密码
+    :return:
+    """
+    form = EmailForm(request.form)
+    if request.method == 'POST':
+        if form.validate():
+            email = form.email.data
+            user = User.query.filter_by(email=email).first_or_404()
+            if not user:
+                flash('该邮箱未注册')
+            else:
+                pass
+        else:
+            pass
+    return render_template('auth/forget_password_request.html', form=form)
 
 
 @web.route('/reset/password/<token>', methods=['GET', 'POST'])
@@ -58,12 +73,25 @@ def forget_password(token):
 
 
 @web.route('/change/password', methods=['GET', 'POST'])
+@login_required
 def change_password():
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.form)
+        if form.validate():
+
+            # 注销用户
+            logout_user()
+            # 跳转到首页
+            return redirect('web.index')
+        else:
+            flash(form.errors)
     return render_template('auth/forget_password.html')
 
 
 @web.route('/logout')
+@login_required
 def logout():
+    logout_user()
     return render_template('index.html')
 
 
