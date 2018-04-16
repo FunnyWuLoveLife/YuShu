@@ -175,3 +175,17 @@ def recent_gift():
     recent_gifts = Gift.recent()
     recent_books = [BookViewModel(gift.book) for gift in recent_gifts]
     return ResponseModel(dataObj=recent_books).to_response()
+
+
+@api.route('/api/book/requestBook', methods=['POST'])
+def requestBook():
+    return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
+                         msg='ISBN编号错误',
+                         check=False).to_response()
+
+
+@api.route('/api/book/donateBook', methods=['POST'])
+def donateBook():
+    return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
+                         msg='ISBN编号错误',
+                         check=False).to_response()
