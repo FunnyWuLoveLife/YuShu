@@ -13,6 +13,7 @@ class BookViewModel:
         self.title = ''
         self.author = '未知'
         self.publisher = '未知'
+        self.pubdate = ''
         self.summary = '未知'
         self.price = '未知'
         self.image = ''
@@ -30,6 +31,7 @@ class BookViewModel:
             self.summary = ' ' + book['summary'].replace(r'.', '') if book['summary'] else ''
             self.price = '￥' + book.get('price') if book.get('price') else '未知'
             self.image = book['image']
+            self.pubdate = book['pubdate']
             self.isbn = book['isbn']
             self.pages = book['pages']
             self.binding = book['binding']
@@ -41,10 +43,18 @@ class BookViewModel:
 
 
 class BookDetail:
-    def __init__(self, book, gift, wish):
+    def __init__(self, book=None, gift=None, wish=None):
         self.book = book
         self.gift = gift
         self.wish = wish
+
+    def fill(self, attrs_dict):
+        if isinstance(attrs_dict, dict):
+            for k, v in attrs_dict.items():
+                if hasattr(self, k):
+                    setattr(self, k, v)  # 动态赋值
+
+        return self
 
 
 class BookCollection:
@@ -57,4 +67,10 @@ class BookCollection:
         self.total = dou_book.total
         self.books = [BookViewModel().fill(book) for book in dou_book.books]
         self.keyword = keyword
+        return self
+
+    def fill_by_book_list(self, b_list):
+        self.total = len(b_list)
+        self.books = [BookViewModel().fill(book) for book in b_list]
+        del self.keyword
         return self

@@ -29,3 +29,7 @@ class BookModel(BaseModel):
     @classmethod
     def find_book_by_isbn(cls, isbn):
         return cls.query.filter_by(isbn=isbn).first()
+
+    @classmethod
+    def find_book_by_id(cls, bid):
+        return cls.query.filter_by(id=bid).first()

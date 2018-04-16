@@ -6,12 +6,12 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
-from flask import request, current_app
+from flask import request
 
 from util.common import is_isbn, Token
 
 from . import api
-from .view_modes import BookCollection, ResponseModel, BookViewModel, BookDetail
+from .view_modes import BookCollection, ResponseModel, BookViewModel, BookDetail, TradeInfo
 from ..forms import SearchForm, IsbnForm
 from ..spider import DouBanBook
 from ..models import Wish, Gift, BookModel, User
@@ -46,15 +46,37 @@ def search():
 @api.route('/api/book/details', methods=['GET'])
 def details():
     token = request.headers.get('token')
+    user = None
+    if token:
+        openId = Token.get_openid(token)
+        user = User.find_user_by_openid(openId)
 
     form = IsbnForm(request.args)
     if form.validate():
+
+        # 取值不能同时为True,在添加gift和wish时已经限制
+        has_in_gifts, has_in_wishes = (False, False)
+
         isbn = form.isbn.data
         book = DouBanBook().search_by_isbn(isbn).first
         # 未查找到图书
         if not book:
             return ResponseModel(code=200, msg_code=ErrorCode.BOOK_NOT_FIND,
                                  msg='未查找到相应图书', check=False).to_response()
+
+        trade_gifts = Gift.query.filter_by(isbn=isbn, launched=False).all()
+        trade_wishes = Wish.query.filter_by(isbn=isbn, launched=False).all()
+
+        trade_gifts_model = TradeInfo(trade_gifts)
+        trade_wishes_model = TradeInfo(trade_wishes)
+
+        # 判断是在赠送清单还是在心愿清单，或者都不在
+        # 判断是否登录，不登录的情况是不在心愿清单也不在赠送清单
+        if user:
+            if Gift.query.filter_by(uid=user.id, isbn=isbn, launched=False).first():
+                has_in_gifts = True
+            elif Wish.query.filter_by(uid=user.id, isbn=isbn, launched=False).first():
+                has_in_wishes = True
 
         book = BookViewModel().fill(book)
 
@@ -63,8 +85,19 @@ def details():
         wish = Wish()
         wish.isbn = isbn
 
-        book_detail = BookDetail(book, {'num': gift.gifts_count}, {"num": wish.wishes_count})
-        return ResponseModel(dataObj=book_detail).to_response()
+        book_detail = BookDetail()
+        book_detail.fill({
+            'book': book,
+            'gift': {'num': gift.gifts_count,
+                     'has_in_gifts': has_in_gifts,
+                     'trade_gifts': trade_gifts_model
+                     },
+            'wish': {"num": wish.wishes_count,
+                     'has_in_wishes': has_in_wishes,
+                     'trade_wishes': trade_wishes_model}
+        })
+
+        return ResponseModel(dataObj=book_detail, check=False).to_response()
     else:
         return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
                              msg='ISBN编号错误', check=False
@@ -91,7 +124,7 @@ def donate():
             gift.uid = user.id
             gift.isbn = isbn
             # 赠书成本，鱼豆增加
-            user.beans += current_app.config['BEANS_UPLOAD_ONE_BOOK']
+            user.beans += user.config['BEANS_UPLOAD_ONE_BOOK']
             gift.save()
             return ResponseModel({"num": gift.gifts_count}, check=False).to_response()
         else:
@@ -120,8 +153,11 @@ def addWish():
         if user.can_save_to_list(isbn):
             bid = BookModel.find_book_by_isbn(isbn).id
             wis = Wish(user.id, isbn, bid)
-
-            user.beans -= current_app.config['BEANS_WISH_ONE_BOOK']
+            if user.beans - user.config['BEANS_WISH_ONE_BOOK'] < 0:
+                return ResponseModel(msg_code=ErrorCode.BEANS_NOT_ENOUGH,
+                                     msg='书豆余额不足，赠送图书可获取',
+                                     check=False).to_response()
+            user.beans -= user.config['BEANS_WISH_ONE_BOOK']
             wis.save()
             return ResponseModel({"num": wis.wishes_count}, check=False).to_response()
         else:

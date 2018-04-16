@@ -22,7 +22,7 @@ def user_info():
     encryptedData = data.get('encryptedData')
     iv = data.get('iv')
     token = request.headers['token']
-    if token:
+    if token is None:
         ResponseModel(code=200, msg_code=4030,
                       msg='token失效', check=False).to_response()
 
@@ -33,7 +33,7 @@ def user_info():
 
     secKey = Sessionkey.get_session_key_by_openid(oid)
     if secKey is None:
-        print('用户秘钥不存在')
+        print('用户秘钥不存在', oid)
         return ResponseModel(code=200,
                              msg_code=ErrorCode.IS_REGISTER_WX,
                              msg='用户秘钥不存在',
@@ -90,3 +90,22 @@ def verify():
     else:
         return ResponseModel(dataObj={'isValid': False}, code=401, msg_code=4012,
                              msg='登陆状态已失效', check=False).to_response()
+
+
+@api.route('/api/user/info', methods=['GET'])
+def update_user_info():
+    token = request.headers['token']
+    oid = Token.get_openid(token)
+    if token is None or oid is None:
+        return ResponseModel(code=200, msg_code=ErrorCode.TOKEN_IS_MUST,
+                             msg='Token失效', check=False).to_response()
+
+    user = User.find_user_by_openid(oid)
+    if user is None:
+        return ResponseModel(code=200, msg_code=ErrorCode.USER_NOT_EXIST,
+                             msg='用户不存在', check=False).to_response()
+
+    uv = UserViewModel(user)
+    return ResponseModel(uv,
+                         msg='更新用户信息成功',
+                         check=False).to_response()

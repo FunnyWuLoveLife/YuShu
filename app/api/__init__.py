@@ -14,3 +14,4 @@ api = Blueprint('api', __name__)
 
 from .book import *
 from .user import *
+from .gift import *
