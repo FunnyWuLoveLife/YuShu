@@ -91,8 +91,10 @@ class User(BaseModel, UserMixin):
         """
         return self.query.filter_by(openId=self.openId).first()
 
-    def set_attrs(self, attrs_dict, ignore=list()):
-        ignore.append('id')
+    def set_attrs(self, attrs_dict, ignore=list(), ignoreId=True):
+
+        ignore.append('id') if ignoreId else ''
+
         for k, v in attrs_dict.items():
             if k == 'nickName':
                 k = 'nickname'

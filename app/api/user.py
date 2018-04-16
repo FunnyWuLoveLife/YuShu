@@ -47,9 +47,12 @@ def user_info():
         return ResponseModel(code=200, msg_code=4030,
                              msg='解码错误', check=False).to_response()
     user = User().set_attrs(decryptedData)
+    wxU = user.isRegisterWx
+    if wxU:
+        # 如果用户已经存在则返回历史数据给用户
+        user = wxU
     uv = UserViewModel(user)
-    if not user.isRegisterWx:
-        user.save()
+    user.save()
     return ResponseModel(uv,
                          msg='保存用户信息成功',
                          check=False).to_response()

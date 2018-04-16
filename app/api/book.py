@@ -6,7 +6,7 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
-from flask import request
+from flask import request, current_app
 
 from util.common import is_isbn, Token
 
@@ -124,7 +124,7 @@ def donate():
             gift.uid = user.id
             gift.isbn = isbn
             # 赠书成本，鱼豆增加
-            user.beans += user.config['BEANS_UPLOAD_ONE_BOOK']
+            user.beans += current_app.config['BEANS_UPLOAD_ONE_BOOK']
             gift.save()
             return ResponseModel({"num": gift.gifts_count}, check=False).to_response()
         else:
@@ -153,11 +153,11 @@ def addWish():
         if user.can_save_to_list(isbn):
             bid = BookModel.find_book_by_isbn(isbn).id
             wis = Wish(user.id, isbn, bid)
-            if user.beans - user.config['BEANS_WISH_ONE_BOOK'] < 0:
+            if user.beans - current_app.config['BEANS_WISH_ONE_BOOK'] < 0:
                 return ResponseModel(msg_code=ErrorCode.BEANS_NOT_ENOUGH,
                                      msg='书豆余额不足，赠送图书可获取',
                                      check=False).to_response()
-            user.beans -= user.config['BEANS_WISH_ONE_BOOK']
+            user.beans -= current_app.config['BEANS_WISH_ONE_BOOK']
             wis.save()
             return ResponseModel({"num": wis.wishes_count}, check=False).to_response()
         else:
