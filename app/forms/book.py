@@ -18,3 +18,7 @@ class SearchForm(Form):
 
 class IsbnForm(Form):
     isbn = StringField(validators=[DataRequired(), Length(min=10, max=13)])
+
+
+class ReqDonateForm(Form):
+    tid = IntegerField(validators=[DataRequired(message='uid是必须参数')])

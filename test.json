@@ -1,0 +1,29 @@
+9787560633213
+9787560639192
+9787040387032
+9787302381204
+9787560639192
+
+
+{
+    "reason": "查询成功", 
+    "result": {
+        "levelNum": "4", 
+        "subtitle": null, 
+        "author": "焦素敏", 
+        "pubdate": "2015年03月", 
+        "origin_title": "", 
+        "binding": "平装", 
+        "translator": "", 
+        "pages": "0", 
+        "images_medium": "http://open.6api.net/mpic/1_23677470.jpg", 
+        "images_large": "http://open.6api.net/lpic/1_23677470.jpg", 
+        "publisher": "清华大学出版社", 
+        "isbn10": "7302381208", 
+        "isbn13": "9787302381204", 
+        "title": "电路与电子技术 高等院校电子信息应用型规划教材 ", 
+        "summary": "", 
+        "price": "49.00"
+    }, 
+    "error_code": 0
+}

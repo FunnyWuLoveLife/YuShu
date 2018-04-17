@@ -12,9 +12,9 @@ from util.common import is_isbn, Token
 
 from . import api
 from .view_modes import BookCollection, ResponseModel, BookViewModel, BookDetail, TradeInfo
-from ..forms import SearchForm, IsbnForm
+from ..forms import SearchForm, IsbnForm, ReqDonateForm
 from ..spider import DouBanBook
-from ..models import Wish, Gift, BookModel, User
+from ..models import Wish, Gift, BookModel, User, db
 from ..error import ErrorCode
 
 
@@ -177,15 +177,175 @@ def recent_gift():
     return ResponseModel(dataObj=recent_books).to_response()
 
 
-@api.route('/api/book/requestBook', methods=['POST'])
+@api.route('/api/book/requestBook', methods=['GET'])
 def requestBook():
-    return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
-                         msg='ISBN编号错误',
-                         check=False).to_response()
+    token = request.headers.get('token')
+    openId = Token.get_openid(token)
+
+    form = ReqDonateForm(request.args)
+
+    if form.validate() and openId is not None:
+        requester = User.find_user_by_openid(openId)
+
+        gift = Gift.query.filter_by(id=form.tid.data, launched=False).first()
+        wish = Wish.query.filter_by(uid=requester.id, isbn=gift.isbn, launched=False).first()
+
+        #
+        if wish.uid != requester.id:
+            return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
+                                 msg='不能赠送别人的数据哟',
+                                 check=False).to_response()
+
+        wish.launched = True
+        wish.benefactor = requester.id
+
+        gift.launched = True
+        gift.receiver = gift.uid
+
+        requester.send_counter += 1
+        try:
+            db.session.commit()
+        except Exception as e:
+            return ResponseModel(msg_code=ErrorCode.SERVER_ERROR,
+                                 msg='服务器内部错误',
+                                 check=False).to_response()
+
+        # 完成保存,刷新数据
+        isbn = gift.isbn
+
+        # 取值不能同时为True,在添加gift和wish时已经限制
+        has_in_gifts, has_in_wishes = (False, False)
+
+        book = DouBanBook().search_by_isbn(isbn).first
+        # 未查找到图书
+        if not book:
+            return ResponseModel(code=200, msg_code=ErrorCode.BOOK_NOT_FIND,
+                                 msg='未查找到相应图书', check=False).to_response()
+
+        trade_gifts = Gift.query.filter_by(isbn=isbn, launched=False).all()
+        trade_wishes = Wish.query.filter_by(isbn=isbn, launched=False).all()
+
+        trade_gifts_model = TradeInfo(trade_gifts)
+        trade_wishes_model = TradeInfo(trade_wishes)
+
+        # 判断是在赠送清单还是在心愿清单，或者都不在
+        # 判断是否登录，不登录的情况是不在心愿清单也不在赠送清单
+        if Gift.query.filter_by(uid=requester.id, isbn=isbn, launched=False).first():
+            has_in_gifts = True
+        elif Wish.query.filter_by(uid=requester.id, isbn=isbn, launched=False).first():
+            has_in_wishes = True
+
+        book = BookViewModel().fill(book)
+
+        gift = Gift()
+        gift.isbn = isbn
+        wish = Wish()
+        wish.isbn = isbn
+
+        book_detail = BookDetail()
+        book_detail.fill({
+            'book': book,
+            'gift': {'num': gift.gifts_count,
+                     'has_in_gifts': has_in_gifts,
+                     'trade_gifts': trade_gifts_model
+                     },
+            'wish': {"num": wish.wishes_count,
+                     'has_in_wishes': has_in_wishes,
+                     'trade_wishes': trade_wishes_model}
+        })
+
+        return ResponseModel(dataObj=book_detail, check=False).to_response()
+    else:
+        return ResponseModel(msg_code=ErrorCode.PARAMETERS_ERROR, msg='参数错误',
+                             check=False).to_response()
 
 
-@api.route('/api/book/donateBook', methods=['POST'])
+@api.route('/api/book/donateBook', methods=['GET'])
 def donateBook():
-    return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
-                         msg='ISBN编号错误',
+    token = request.headers.get('token')
+    openId = Token.get_openid(token)
+
+    form = ReqDonateForm(request.args)
+    print(form.data)
+
+    if form.validate() and openId is not None:
+        sender = User.find_user_by_openid(openId)
+
+        wish = Wish.query.filter_by(id=form.tid.data, launched=False).first()
+        gift = Gift.query.filter_by(uid=sender.id, isbn=wish.isbn, launched=False).first()
+
+        #
+        if gift.uid != sender.id:
+            return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
+                                 msg='不能赠送别人的数据哟',
+                                 check=False).to_response()
+
+        wish.launched = True
+        wish.benefactor = sender.id
+
+        gift.launched = True
+        gift.receiver = wish.uid
+
+        sender.send_counter += 1
+        try:
+            db.session.commit()
+        except Exception as e:
+            return ResponseModel(msg_code=ErrorCode.SERVER_ERROR,
+                                 msg='服务器内部错误',
+                                 check=False).to_response()
+
+        # 完成保存,刷新数据
+        isbn = wish.isbn
+
+        # 取值不能同时为True,在添加gift和wish时已经限制
+        has_in_gifts, has_in_wishes = (False, False)
+
+        book = DouBanBook().search_by_isbn(isbn).first
+        # 未查找到图书
+        if not book:
+            return ResponseModel(code=200, msg_code=ErrorCode.BOOK_NOT_FIND,
+                                 msg='未查找到相应图书', check=False).to_response()
+
+        trade_gifts = Gift.query.filter_by(isbn=isbn, launched=False).all()
+        trade_wishes = Wish.query.filter_by(isbn=isbn, launched=False).all()
+
+        trade_gifts_model = TradeInfo(trade_gifts)
+        trade_wishes_model = TradeInfo(trade_wishes)
+
+        # 判断是在赠送清单还是在心愿清单，或者都不在
+        # 判断是否登录，不登录的情况是不在心愿清单也不在赠送清单
+        if Gift.query.filter_by(uid=sender.id, isbn=isbn, launched=False).first():
+            has_in_gifts = True
+        elif Wish.query.filter_by(uid=sender.id, isbn=isbn, launched=False).first():
+            has_in_wishes = True
+
+        book = BookViewModel().fill(book)
+
+        gift = Gift()
+        gift.isbn = isbn
+        wish = Wish()
+        wish.isbn = isbn
+
+        book_detail = BookDetail()
+        book_detail.fill({
+            'book': book,
+            'gift': {'num': gift.gifts_count,
+                     'has_in_gifts': has_in_gifts,
+                     'trade_gifts': trade_gifts_model
+                     },
+            'wish': {"num": wish.wishes_count,
+                     'has_in_wishes': has_in_wishes,
+                     'trade_wishes': trade_wishes_model}
+        })
+
+        return ResponseModel(dataObj=book_detail, check=False).to_response()
+    else:
+        return ResponseModel(msg_code=ErrorCode.PARAMETERS_ERROR, msg='参数错误',
+                             check=False).to_response()
+
+
+@api.route('/api/hotSearch')
+def hot_search():
+    hot_key = ['java', 'vue', 'python', '物联网', 'web']
+    return ResponseModel(dataObj=hot_key,
                          check=False).to_response()

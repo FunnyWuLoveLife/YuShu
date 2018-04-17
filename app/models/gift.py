@@ -27,6 +27,8 @@ class Gift(BaseModel):
 
     launched = Column(Boolean, default=False, comment='图书是否已经送出')
 
+    receiver = Column(Integer, nullable=True, comment='接受者')
+
     @property
     def book(self):
         return BookModel.query.filter_by(isbn=self.isbn).first()
@@ -47,6 +49,7 @@ class Gift(BaseModel):
     @property
     def wishes_count(self):
         return len(Wish.query.filter_by(isbn=self.isbn, launched=False).all())
+
     @property
     def gifts_count(self):
         return len(Gift.query.filter_by(isbn=self.isbn, launched=False).all())
@@ -63,6 +66,8 @@ class Wish(BaseModel):
 
     isbn = Column(String(15), nullable=False, comment='唯一isbn号')
     launched = Column(Boolean, default=False, comment='礼物是否送出')
+
+    benefactor = Column(Integer, nullable=True, comment='捐赠者')
 
     def __init__(self, uid=None, isbn=None, bid=None):
         self.uid = uid
