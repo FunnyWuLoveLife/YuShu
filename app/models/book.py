@@ -47,7 +47,7 @@ class BookModel(BaseModel):
 
         self.image = attrs_dict.get('image', '')
 
-        self.isbn = attrs_dict.get('isbn13')
+        self.isbn = attrs_dict.get('isbn')
         self.pages = attrs_dict.get('pages')
         self.price = attrs_dict.get('price')
         self.pubdate = attrs_dict.get('pubdate')

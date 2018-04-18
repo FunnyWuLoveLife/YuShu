@@ -7,6 +7,7 @@
 # @contact: agiot1026@163.com
 # @Software: PyCharm
 from flask import current_app as app
+from bs4 import BeautifulSoup
 
 from util.httpHelper import HTTP
 
@@ -29,12 +30,18 @@ class DouBanBook:
             self._fill_single(book)
         else:
             result = HTTP.get(self._isbn_url.format(isbn))
-            BookModel().set_attrs_from_douban(result).save()
-            if result.get('isbn13'):
-                result['isbn'] = result.get('isbn13')
-            elif result.get('isbn10'):
-                result['isbn'] = result.get('isbn10')
-            self._fill_single(result)
+            if result.get('title', None) and result.get('code', '') != 6000:
+                if result.get('isbn13'):
+                    result['isbn'] = result.get('isbn13')
+                elif result.get('isbn10'):
+                    result['isbn'] = result.get('isbn10')
+                print('douban', result)
+                BookModel().set_attrs_from_douban(result).save()
+                self._fill_single(result)
+            else:
+                book = JdSpider.search(isbn)
+                BookModel().set_attrs(book).save()
+                self._fill_single(book)
         return self
 
     def _fill_single(self, data):
@@ -85,5 +92,78 @@ class JdSpider:
     _search_url = "https://search.jd.com/Search?keyword={}" \
                   "&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&wq=9787560639192&wtype=1"
 
-    def search(self, isbn):
-        html = HTTP.get(self._search_url.format(isbn), return_json=False)
+    @classmethod
+    def search(cls, isbn):
+        html = HTTP.get(cls._search_url.format(isbn), return_json=False)
+
+        url = cls.get_url(html)
+        return cls.get_book(url)
+
+    @classmethod
+    def get_url(cls, text):
+        soup = BeautifulSoup(text, 'html.parser')
+        div = soup.find('div', {'class': 'p-name'})
+        a = div.a if div else None
+        url = a.get('href') if a else ''
+        if url.startswith('//'):
+            url = 'https:' + url
+        return url
+
+    @classmethod
+    def get_book(cls, url):
+        html = HTTP.get(url, return_json=False)
+        if html:
+            book = {
+                'title': '',
+                'author': [],
+                'binding': '',
+                'category': '',
+                'image': [],
+                'isbn': '',
+                'pages': 0,
+                'price': '未知',
+                'pubdate': '',
+                'publisher': '',
+                'summary': '',
+            }
+            soup = BeautifulSoup(html, 'html.parser')
+
+            # 图片
+            image_div = soup.find('div', {'class': 'main-img'})
+            image = image_div.find('img') if image_div else None
+            image_url = image.get('src') if image else ''
+            image_url = 'https:' + image_url if image_url.startswith('//') else image_url
+            book['image'] = image_url if image_url else 'https://yushu.xbc922.com/static/images/no_image.png'
+
+            # 书名
+            title = soup.find('div', {'class': 'sku-name'})
+            title_text = title.text if title else ''
+            book['title'] = title_text[:title_text.index('/')] if '/' in title_text else title_text
+
+            # 作者
+            p_author = soup.find('div', {'id': 'p-author'})
+            a_author = p_author.a if p_author else None
+            book['author'] = [a_author.get('data-name', '')]
+
+            # p-parameter-list
+            ul = soup.find('ul', {'class': 'p-parameter-list'})
+            lis = ul.find_all('li') if ul.find('li') else []
+            for li in lis:
+                if 'ISBN' in li.text:
+                    book['isbn'] = li.get('title')
+                    continue
+                if '出版社' in li.text:
+                    book['publisher'] = li.get('title')
+                    continue
+                if '包装' in li.text:
+                    book['binding'] = li.get('title')
+                    continue
+                if '出版时间' in li.text:
+                    book['pubdate'] = li.get('title')[:-3]
+                    continue
+                if '页数' in li.text:
+                    book['pages'] = li.get('title')
+                    continue
+            return book
+        else:
+            return None
