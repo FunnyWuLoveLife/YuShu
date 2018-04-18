@@ -27,6 +27,9 @@ def create_app():
     login_manager.login_view = 'web.login'
     login_manager.login_message = '请先登录或注册'
 
+    # 注册日志配置
+    add_logger(app)
+
     # 初始化蓝图
     register_buleprint(app)
     # register_api(app)
