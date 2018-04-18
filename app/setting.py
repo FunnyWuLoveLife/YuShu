@@ -6,6 +6,7 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
+import os
 
 """
 记录开发环境和生产环境相同的配置，不涉及机密信息
@@ -16,6 +17,6 @@ PRE_PAGE = 15
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 BEANS_UPLOAD_ONE_BOOK = 0.5
-BEANS_WISH_ONE_BOOK = 1
 RECENT_BOOK_COUNT = 30
 BEANS_WISH_ONE_BOOK = 1
+SQLALCHEMY_DATABASE_URI = os.environ.get('YUSHU_DATABASE_URL') or "mysql+pymysql://root:123456@127.0.0.1/yushu"
