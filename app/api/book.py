@@ -33,7 +33,7 @@ def search():
         if is_isbn(q):
             dou_book.search_by_isbn(q)
         else:
-            dou_book.search_by_keyword(q)
+            dou_book.search_by_keyword(q, page=form.page.data)
 
         books = BookCollection().fill(dou_book, q)
 
