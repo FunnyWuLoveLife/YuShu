@@ -35,7 +35,6 @@ class DouBanBook:
                     result['isbn'] = result.get('isbn13')
                 elif result.get('isbn10'):
                     result['isbn'] = result.get('isbn10')
-                print('douban', result)
                 BookModel().set_attrs_from_douban(result).save()
                 self._fill_single(result)
             else:

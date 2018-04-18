@@ -2,3 +2,4 @@ project.config.json
 secure.py
 __pycache__/
 .idea/
+logs/

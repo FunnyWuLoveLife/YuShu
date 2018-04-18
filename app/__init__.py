@@ -6,6 +6,10 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
+import os
+import logging
+import logging.handlers
+
 from flask import Flask
 from flask_login import LoginManager
 
@@ -36,6 +40,20 @@ def create_app():
     db.create_all(app=app)
 
     return app
+
+
+def add_logger(app):
+    app.logger.setLevel(logging.INFO)
+    info_log = os.path.join(app.root_path, '.. /', './logs', 'app-info.log')
+
+    info_file_handler = logging.handlers.RotatingFileHandler(
+        info_log, maxBytes=1048576, backupCount=20)
+    info_file_handler.setLevel(logging.INFO)
+    info_file_handler.setFormatter(
+        logging.Formatter('%(asctime)s %(levelname)s: %(message)s '
+                          '[in %(pathname)s:%(lineno)d]')
+    )
+    app.logger.addHandler(info_file_handler)
 
 
 @login_manager.user_loader

@@ -33,7 +33,7 @@ def user_info():
 
     secKey = Sessionkey.get_session_key_by_openid(oid)
     if secKey is None:
-        print('用户秘钥不存在', oid)
+        app.logger.info('用户秘钥不存在', oid)
         return ResponseModel(code=200,
                              msg_code=ErrorCode.IS_REGISTER_WX,
                              msg='用户秘钥不存在',
@@ -43,7 +43,7 @@ def user_info():
     try:
         decryptedData = wx.decrypt(encryptedData, iv)
     except Exception as e:
-        print(e)
+        app.logger.error(e)
         return ResponseModel(code=200, msg_code=4030,
                              msg='解码错误', check=False).to_response()
     user = User().set_attrs(decryptedData)
@@ -72,7 +72,6 @@ def on_login():
                                  msg='微信登录接口错误', check=False).to_response()
 
         secKey = Sessionkey().set_attrs(res)
-        print(secKey.session_key)
         secKey.save()
         token = Token(openId).generate_auth_token()
         return ResponseModel(TokenViewModel(token, openId)).to_response()

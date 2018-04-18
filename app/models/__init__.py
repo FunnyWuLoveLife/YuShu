@@ -6,6 +6,7 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
+from flask import current_app
 from contextlib import contextmanager
 from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy, BaseQuery
 
@@ -17,7 +18,7 @@ class SQLAlchemy(_SQLAlchemy):
             yield
             self.session.commit()
         except Exception as e:
-            print(e)
+            current_app.logger.error(e)
             self.session.rollback()
             # TODO 异常处理需要完善
             # print(e)
