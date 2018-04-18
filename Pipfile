@@ -1,16 +1,11 @@
 [[source]]
-
  url = "https://pypi.tuna.tsinghua.edu.cn/simple"
  verify_ssl = true
  name = "pypi"
 
-
 [dev-packages]
 
-
-
 [packages]
-
 flask = "*"
 wtforms = "*"
 flask-sqlalchemy = "*"
@@ -21,8 +16,7 @@ itsdangerous = "*"
 flask-login = "*"
 flask-restful = "*"
 "bs4" = "*"
-
+flask-script = "*"
 
 [requires]
-
 python_version = "3.5"
