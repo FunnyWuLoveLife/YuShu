@@ -1,7 +1,6 @@
 #!/usr/bin/bash
 
 cd `dirname $0`
-cd ../
 
 # 进入虚拟环境
 echo 切换虚拟环境...
