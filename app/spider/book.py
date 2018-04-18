@@ -79,3 +79,11 @@ class DouBanBook:
             return self.books[0]
         else:
             return None
+
+
+class JdSpider:
+    _search_url = "https://search.jd.com/Search?keyword={}" \
+                  "&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&wq=9787560639192&wtype=1"
+
+    def search(self, isbn):
+        html = HTTP.get(self._search_url.format(isbn), return_json=False)

@@ -8,9 +8,8 @@
 # @Software: PyCharm
 from app.models.gift import Gift
 from app import create_app
+from app.spider.book import JdSpider
 
-app = create_app()
+# app = create_app()
 if __name__ == '__main__':
-    with app.app_context():
-        a = Gift.query.filter_by(uid=1).first()
-        pass
+    JdSpider().search('9787560639192')

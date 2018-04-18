@@ -1,8 +1,8 @@
 [[source]]
 
-verify_ssl = true
-url = "http://pypi.douban.com/simple"
-name = "pypi"
+ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+ verify_ssl = true
+ name = "pypi"
 
 
 [dev-packages]
@@ -20,6 +20,8 @@ pycryptodome = "*"
 itsdangerous = "*"
 flask-login = "*"
 flask-restful = "*"
+"bs4" = "*"
+
 
 [requires]
 
