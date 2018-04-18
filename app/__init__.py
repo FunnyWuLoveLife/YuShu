@@ -47,7 +47,7 @@ def create_app():
 
 def add_logger(app):
     app.logger.setLevel(logging.INFO)
-    info_log = os.path.join(app.root_path, '.. /', './logs', 'app-info.log')
+    info_log = os.path.join(app.root_path, '../', './logs', 'app-info.log')
 
     info_file_handler = logging.handlers.RotatingFileHandler(
         info_log, maxBytes=1048576, backupCount=20)
