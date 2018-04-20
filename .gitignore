@@ -3,3 +3,4 @@ secure.py
 __pycache__/
 .idea/
 logs/
+test.json
