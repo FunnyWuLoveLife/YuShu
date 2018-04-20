@@ -33,4 +33,13 @@ def save_to_gifts(isbn):
 
 @web.route('/gifts/<gid>/redraw')
 def redraw_from_gifts(gid):
+    gift = Gift.query.filter_by(id=gid).first()
+    if current_user.id == gift.uid:
+        print('del gift')
+
+        gift.status = 0
+        gift.save()
+        return redirect(url_for('web.my_gifts'))
+    else:
+        return redirect(url_for('web.my_gifts'))
     pass

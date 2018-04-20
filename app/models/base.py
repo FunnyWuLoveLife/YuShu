@@ -8,7 +8,7 @@
 # @Software: PyCharm
 from datetime import datetime
 
-from sqlalchemy import Column, SmallInteger, Integer, DateTime
+from sqlalchemy import Column, SmallInteger, Integer, DateTime, text, TIMESTAMP
 
 from . import db
 
@@ -20,7 +20,8 @@ class BaseModel(db.Model):
 
     status = Column(SmallInteger, default=1, comment='软删除状态，1表示未删除，0表示删除')
     create_time = Column('create_time', Integer, comment='创建时间')
-    update_time = Column(Integer, onupdate=int(datetime.now().timestamp()), comment='数据更新时间')
+    update_time = Column(TIMESTAMP,
+                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), comment='数据更新时间')
 
     def __init__(self):
         self.create_time = int(datetime.now().timestamp())

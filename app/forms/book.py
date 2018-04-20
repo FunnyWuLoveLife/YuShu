@@ -22,3 +22,8 @@ class IsbnForm(Form):
 
 class ReqDonateForm(Form):
     tid = IntegerField(validators=[DataRequired(message='uid是必须参数')])
+
+
+class DetailForm(IsbnForm):
+    gid = IntegerField()
+    wid = IntegerField()

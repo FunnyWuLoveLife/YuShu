@@ -43,10 +43,12 @@ class BookViewModel:
 
 
 class BookDetail:
-    def __init__(self, book=None, gift=None, wish=None):
+    def __init__(self, book=None, gift=None, wish=None, recipient=None, sendder=None):
         self.book = book
         self.gift = gift
         self.wish = wish
+        self.recipient = recipient
+        self.sendder = sendder
 
     def fill(self, attrs_dict):
         if isinstance(attrs_dict, dict):
@@ -55,6 +57,13 @@ class BookDetail:
                     setattr(self, k, v)  # 动态赋值
 
         return self
+
+
+class BookTradeInfo:
+
+    def __init__(self, tid, book):
+        self.tid = tid
+        self.book = book
 
 
 class BookCollection:
@@ -72,5 +81,11 @@ class BookCollection:
     def fill_by_book_list(self, b_list):
         self.total = len(b_list)
         self.books = [BookViewModel().fill(book) for book in b_list]
+        del self.keyword
+        return self
+
+    def fill_gift_or_wish(self, b_list, t_list):
+        self.total = len(b_list)
+        self.books = [BookTradeInfo(tid, BookViewModel(book)) for book, tid in zip(b_list, t_list)]
         del self.keyword
         return self
