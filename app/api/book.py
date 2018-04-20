@@ -254,27 +254,7 @@ def _book_details(isbn, uid, gid=None, wid=None):
     wish = Wish()
     wish.isbn = isbn
 
-    # 赠送者，接受者
-    sendder, recipient = {}, {}
-    if gid:
-        gi = Gift.query.filter_by(id=gid).first()
-        # 接收者
-        re = User.query.filter_by(id=gi.receiver).first()
-        recipient = {
-            'nickname': re.nickname,
-            'update_time': re.update_time.strftime('%Y-%m-%d')
-        }
-    if wid:
-        wi = Wish.query.filter_by(id=wid).first()
-        se = User.query.filter_by(id=wi.benefactor).first()
-        sendder = {
-            'nickname': se.nickname,
-            'update_time': se.update_time.strftime('%Y-%m-%d')
-        }
-        pass
-
-    book_detail = BookDetail()
-    book_detail.fill({
+    data = {
         'book': book,
         'gift': {'num': gift.gifts_count,
                  'has_in_gifts': has_in_gifts,
@@ -283,8 +263,36 @@ def _book_details(isbn, uid, gid=None, wid=None):
         'wish': {"num": wish.wishes_count,
                  'has_in_wishes': has_in_wishes,
                  'trade_wishes': trade_wishes_model},
-        'recipient': recipient,
-        'sendder': sendder
-    })
+        'hiddenTrade': True
+    }
+
+    # 赠送者，接受者
+    sender, recipient = dict(hasSender=False), dict(hasRecipient=False)
+    if gid:
+        gi = Gift.query.filter_by(id=gid).first()
+        # 接收者
+        re = User.query.filter_by(id=gi.receiver).first()
+        if re:
+            recipient = {
+                'hasRecipient': True,
+                'nickname': re.nickname,
+                'updateTime': re.update_time.strftime('%Y-%m-%d')
+            }
+            data['hiddenTrade'] = False
+    if wid:
+        wi = Wish.query.filter_by(id=wid).first()
+        se = User.query.filter_by(id=wi.benefactor).first()
+        if se:
+            sender = {
+                'hasSender': True,
+                'nickname': se.nickname,
+                'updateTime': se.update_time.strftime('%Y-%m-%d')
+            }
+            data['hiddenTrade'] = False
+    data['sender'] = sender
+    data['recipient'] = recipient
+
+    book_detail = BookDetail()
+    book_detail.fill(data)
 
     return ResponseModel(dataObj=book_detail, check=False)

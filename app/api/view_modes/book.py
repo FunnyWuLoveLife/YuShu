@@ -43,12 +43,13 @@ class BookViewModel:
 
 
 class BookDetail:
-    def __init__(self, book=None, gift=None, wish=None, recipient=None, sendder=None):
+    def __init__(self, book=None, gift=None, wish=None, recipient=None, sender=None, hiddenTrade=None):
         self.book = book
         self.gift = gift
         self.wish = wish
         self.recipient = recipient
-        self.sendder = sendder
+        self.sender = sender
+        self.hiddenTrade = True
 
     def fill(self, attrs_dict):
         if isinstance(attrs_dict, dict):
@@ -60,7 +61,6 @@ class BookDetail:
 
 
 class BookTradeInfo:
-
     def __init__(self, tid, book):
         self.tid = tid
         self.book = book
