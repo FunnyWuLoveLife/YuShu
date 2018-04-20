@@ -1,5 +1,5 @@
 from flask import render_template, flash, redirect, url_for, current_app
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from ..models import Wish
 from . import web, BookModel
@@ -8,12 +8,14 @@ __author__ = '七月'
 
 
 @web.route('/my/wish')
+@login_required
 def my_wish():
     wishes = Wish.find_user_wishes(current_user.id)
     return render_template('my_wish.html', wishes=wishes)
 
 
 @web.route('/wish/book/<isbn>')
+@login_required
 def save_to_wish(isbn):
     if current_user.can_save_to_list(isbn):
         wish = Wish(current_user.id, isbn)
@@ -32,10 +34,11 @@ def save_to_wish(isbn):
 
 
 @web.route('/satisfy/wish/<int:wid>')
+@login_required
 def satisfy_wish(wid):
-    pass
+    return redirect(url_for('web.my_wish'))
 
 
 @web.route('/wish/book/<isbn>/redraw')
 def redraw_from_wish(isbn):
-    pass
+    return redirect(url_for('web.my_wish'))
