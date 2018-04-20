@@ -40,5 +40,6 @@ def satisfy_wish(wid):
 
 
 @web.route('/wish/book/<isbn>/redraw')
+@login_required
 def redraw_from_wish(isbn):
     return redirect(url_for('web.my_wish'))
