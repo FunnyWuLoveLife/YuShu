@@ -32,5 +32,6 @@ def save_to_gifts(isbn):
 
 
 @web.route('/gifts/<gid>/redraw')
+@login_required
 def redraw_from_gifts(gid):
-    pass
+    return redirect(url_for('web.my_gifts'))

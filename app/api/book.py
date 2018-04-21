@@ -158,7 +158,6 @@ def requestBook():
         wish.launched = True
         wish.benefactor = gift.uid
 
-
         gift.launched = True
         gift.receiver = requester.id
 
