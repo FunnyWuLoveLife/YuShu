@@ -275,7 +275,7 @@ def _book_details(isbn, uid, gid=None, wid=None):
             recipient = {
                 'hasRecipient': True,
                 'nickname': re.nickname,
-                'updateTime': re.update_time.strftime('%Y-%m-%d')
+                'updateTime': se.update_time[:11] if isinstance(se.update_time, str) else ''
             }
             data['hiddenTrade'] = False
     if wid:
@@ -285,7 +285,7 @@ def _book_details(isbn, uid, gid=None, wid=None):
             sender = {
                 'hasSender': True,
                 'nickname': se.nickname,
-                'updateTime': se.update_time.strftime('%Y-%m-%d')
+                'updateTime': se.update_time[:11] if isinstance(se.update_time, str) else ''
             }
             data['hiddenTrade'] = False
     data['sender'] = sender
