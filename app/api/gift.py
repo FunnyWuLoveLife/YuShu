@@ -43,6 +43,7 @@ def my_wishes():
                              check=False).to_response()
     wishes = Wish.find_user_wishes(user.id)
 
-    books = BookCollection().fill_by_book_list([BookModel.find_book_by_id(wish.bid) for wish in wishes])
+    books = BookCollection().fill_gift_or_wish([BookModel.find_book_by_id(wish.bid) for wish in wishes],
+                                               [wish.id for wish in wishes])
 
     return ResponseModel(dataObj=books, check=False).to_response()

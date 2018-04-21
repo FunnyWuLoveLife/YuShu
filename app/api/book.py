@@ -156,10 +156,11 @@ def requestBook():
                                  check=False).to_response()
 
         wish.launched = True
-        wish.benefactor = requester.id
+        wish.benefactor = gift.uid
+
 
         gift.launched = True
-        gift.receiver = gift.uid
+        gift.receiver = requester.id
 
         requester.send_counter += 1
         try:
@@ -190,7 +191,6 @@ def donateBook():
         wish = Wish.query.filter_by(id=form.tid.data, launched=False).first()
         gift = Gift.query.filter_by(uid=sender.id, isbn=wish.isbn, launched=False).first()
 
-        #
         if gift.uid != sender.id:
             return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
                                  msg='不能赠送别人的数据哟',
@@ -210,7 +210,7 @@ def donateBook():
                                  msg='服务器内部错误',
                                  check=False).to_response()
 
-        return _book_details(gift.isbn, uid=sender.id, wid=form.tid.data)
+        return _book_details(gift.isbn, uid=sender.id, wid=form.tid.data).to_response()
     else:
         return ResponseModel(msg_code=ErrorCode.PARAMETERS_ERROR, msg='参数错误',
                              check=False).to_response()
