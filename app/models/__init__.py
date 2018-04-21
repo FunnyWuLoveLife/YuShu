@@ -18,7 +18,7 @@ class SQLAlchemy(_SQLAlchemy):
             yield
             self.session.commit()
         except Exception as e:
-            current_app.logger.warning(e)
+            # current_app.logger.warning(e)
             self.session.rollback()
             # TODO 异常处理需要完善
             # print(e)

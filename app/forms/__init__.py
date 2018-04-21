@@ -7,5 +7,5 @@
 # @contact: agiot1026@163.com
 # @Software: PyCharm
 
-from .book import SearchForm, IsbnForm, ReqDonateForm
+from .book import SearchForm, IsbnForm, ReqDonateForm, DetailForm
 from .user import RegisterForm, LoginForm, ChangePasswordForm, EmailForm

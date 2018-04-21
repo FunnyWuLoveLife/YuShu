@@ -12,7 +12,7 @@ from util.common import is_isbn, Token
 
 from . import api
 from .view_modes import BookCollection, ResponseModel, BookViewModel, BookDetail, TradeInfo
-from ..forms import SearchForm, IsbnForm, ReqDonateForm
+from ..forms import SearchForm, IsbnForm, ReqDonateForm, DetailForm
 from ..spider import DouBanBook
 from ..models import Wish, Gift, BookModel, User, db
 from ..error import ErrorCode
@@ -51,53 +51,12 @@ def details():
         openId = Token.get_openid(token)
         user = User.find_user_by_openid(openId)
 
-    form = IsbnForm(request.args)
+    form = DetailForm(request.args)
     if form.validate():
 
-        # 取值不能同时为True,在添加gift和wish时已经限制
-        has_in_gifts, has_in_wishes = (False, False)
+        return _book_details(form.isbn.data, user.id if user else None,
+                             gid=form.gid.data, wid=form.wid.data).to_response()
 
-        isbn = form.isbn.data
-        book = DouBanBook().search_by_isbn(isbn).first
-        # 未查找到图书
-        if not book:
-            return ResponseModel(code=200, msg_code=ErrorCode.BOOK_NOT_FIND,
-                                 msg='未查找到相应图书', check=False).to_response()
-
-        trade_gifts = Gift.query.filter_by(isbn=isbn, launched=False).all()
-        trade_wishes = Wish.query.filter_by(isbn=isbn, launched=False).all()
-
-        trade_gifts_model = TradeInfo(trade_gifts)
-        trade_wishes_model = TradeInfo(trade_wishes)
-
-        # 判断是在赠送清单还是在心愿清单，或者都不在
-        # 判断是否登录，不登录的情况是不在心愿清单也不在赠送清单
-        if user:
-            if Gift.query.filter_by(uid=user.id, isbn=isbn, launched=False).first():
-                has_in_gifts = True
-            elif Wish.query.filter_by(uid=user.id, isbn=isbn, launched=False).first():
-                has_in_wishes = True
-
-        book = BookViewModel().fill(book)
-
-        gift = Gift()
-        gift.isbn = isbn
-        wish = Wish()
-        wish.isbn = isbn
-
-        book_detail = BookDetail()
-        book_detail.fill({
-            'book': book,
-            'gift': {'num': gift.gifts_count,
-                     'has_in_gifts': has_in_gifts,
-                     'trade_gifts': trade_gifts_model
-                     },
-            'wish': {"num": wish.wishes_count,
-                     'has_in_wishes': has_in_wishes,
-                     'trade_wishes': trade_wishes_model}
-        })
-
-        return ResponseModel(dataObj=book_detail, check=False).to_response()
     else:
         return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
                              msg='ISBN编号错误', check=False
@@ -197,10 +156,11 @@ def requestBook():
                                  check=False).to_response()
 
         wish.launched = True
-        wish.benefactor = requester.id
+        wish.benefactor = gift.uid
+
 
         gift.launched = True
-        gift.receiver = gift.uid
+        gift.receiver = requester.id
 
         requester.send_counter += 1
         try:
@@ -210,51 +170,8 @@ def requestBook():
                                  msg='服务器内部错误',
                                  check=False).to_response()
 
-        # 完成保存,刷新数据
-        isbn = gift.isbn
+        return _book_details(gift.isbn, uid=requester.id, gid=form.tid.data).to_response()
 
-        # 取值不能同时为True,在添加gift和wish时已经限制
-        has_in_gifts, has_in_wishes = (False, False)
-
-        book = DouBanBook().search_by_isbn(isbn).first
-        # 未查找到图书
-        if not book:
-            return ResponseModel(code=200, msg_code=ErrorCode.BOOK_NOT_FIND,
-                                 msg='未查找到相应图书', check=False).to_response()
-
-        trade_gifts = Gift.query.filter_by(isbn=isbn, launched=False).all()
-        trade_wishes = Wish.query.filter_by(isbn=isbn, launched=False).all()
-
-        trade_gifts_model = TradeInfo(trade_gifts)
-        trade_wishes_model = TradeInfo(trade_wishes)
-
-        # 判断是在赠送清单还是在心愿清单，或者都不在
-        # 判断是否登录，不登录的情况是不在心愿清单也不在赠送清单
-        if Gift.query.filter_by(uid=requester.id, isbn=isbn, launched=False).first():
-            has_in_gifts = True
-        elif Wish.query.filter_by(uid=requester.id, isbn=isbn, launched=False).first():
-            has_in_wishes = True
-
-        book = BookViewModel().fill(book)
-
-        gift = Gift()
-        gift.isbn = isbn
-        wish = Wish()
-        wish.isbn = isbn
-
-        book_detail = BookDetail()
-        book_detail.fill({
-            'book': book,
-            'gift': {'num': gift.gifts_count,
-                     'has_in_gifts': has_in_gifts,
-                     'trade_gifts': trade_gifts_model
-                     },
-            'wish': {"num": wish.wishes_count,
-                     'has_in_wishes': has_in_wishes,
-                     'trade_wishes': trade_wishes_model}
-        })
-
-        return ResponseModel(dataObj=book_detail, check=False).to_response()
     else:
         return ResponseModel(msg_code=ErrorCode.PARAMETERS_ERROR, msg='参数错误',
                              check=False).to_response()
@@ -274,7 +191,6 @@ def donateBook():
         wish = Wish.query.filter_by(id=form.tid.data, launched=False).first()
         gift = Gift.query.filter_by(uid=sender.id, isbn=wish.isbn, launched=False).first()
 
-        #
         if gift.uid != sender.id:
             return ResponseModel(msg_code=ErrorCode.ISBN_CODE_ERROR,
                                  msg='不能赠送别人的数据哟',
@@ -294,51 +210,7 @@ def donateBook():
                                  msg='服务器内部错误',
                                  check=False).to_response()
 
-        # 完成保存,刷新数据
-        isbn = wish.isbn
-
-        # 取值不能同时为True,在添加gift和wish时已经限制
-        has_in_gifts, has_in_wishes = (False, False)
-
-        book = DouBanBook().search_by_isbn(isbn).first
-        # 未查找到图书
-        if not book:
-            return ResponseModel(code=200, msg_code=ErrorCode.BOOK_NOT_FIND,
-                                 msg='未查找到相应图书', check=False).to_response()
-
-        trade_gifts = Gift.query.filter_by(isbn=isbn, launched=False).all()
-        trade_wishes = Wish.query.filter_by(isbn=isbn, launched=False).all()
-
-        trade_gifts_model = TradeInfo(trade_gifts)
-        trade_wishes_model = TradeInfo(trade_wishes)
-
-        # 判断是在赠送清单还是在心愿清单，或者都不在
-        # 判断是否登录，不登录的情况是不在心愿清单也不在赠送清单
-        if Gift.query.filter_by(uid=sender.id, isbn=isbn, launched=False).first():
-            has_in_gifts = True
-        elif Wish.query.filter_by(uid=sender.id, isbn=isbn, launched=False).first():
-            has_in_wishes = True
-
-        book = BookViewModel().fill(book)
-
-        gift = Gift()
-        gift.isbn = isbn
-        wish = Wish()
-        wish.isbn = isbn
-
-        book_detail = BookDetail()
-        book_detail.fill({
-            'book': book,
-            'gift': {'num': gift.gifts_count,
-                     'has_in_gifts': has_in_gifts,
-                     'trade_gifts': trade_gifts_model
-                     },
-            'wish': {"num": wish.wishes_count,
-                     'has_in_wishes': has_in_wishes,
-                     'trade_wishes': trade_wishes_model}
-        })
-
-        return ResponseModel(dataObj=book_detail, check=False).to_response()
+        return _book_details(gift.isbn, uid=sender.id, wid=form.tid.data).to_response()
     else:
         return ResponseModel(msg_code=ErrorCode.PARAMETERS_ERROR, msg='参数错误',
                              check=False).to_response()
@@ -349,3 +221,78 @@ def hot_search():
     hot_key = ['java', 'vue', 'python', '物联网', 'web']
     return ResponseModel(dataObj=hot_key,
                          check=False).to_response()
+
+
+def _book_details(isbn, uid, gid=None, wid=None):
+    # 取值不能同时为True,在添加gift和wish时已经限制
+    has_in_gifts, has_in_wishes = (False, False)
+
+    book = DouBanBook().search_by_isbn(isbn).first
+    # 未查找到图书
+    if not book:
+        return ResponseModel(code=200, msg_code=ErrorCode.BOOK_NOT_FIND,
+                             msg='未查找到相应图书', check=False)
+
+    trade_gifts = Gift.query.filter_by(isbn=isbn, launched=False).all()
+    trade_wishes = Wish.query.filter_by(isbn=isbn, launched=False).all()
+
+    trade_gifts_model = TradeInfo(trade_gifts)
+    trade_wishes_model = TradeInfo(trade_wishes)
+
+    # 判断是在赠送清单还是在心愿清单，或者都不在
+    # 判断是否登录，不登录的情况是不在心愿清单也不在赠送清单
+    if uid:
+        if Gift.query.filter_by(uid=uid, isbn=isbn, launched=False).first():
+            has_in_gifts = True
+        elif Wish.query.filter_by(uid=uid, isbn=isbn, launched=False).first():
+            has_in_wishes = True
+
+    book = BookViewModel().fill(book)
+
+    gift = Gift()
+    gift.isbn = isbn
+    wish = Wish()
+    wish.isbn = isbn
+
+    data = {
+        'book': book,
+        'gift': {'num': gift.gifts_count,
+                 'has_in_gifts': has_in_gifts,
+                 'trade_gifts': trade_gifts_model
+                 },
+        'wish': {"num": wish.wishes_count,
+                 'has_in_wishes': has_in_wishes,
+                 'trade_wishes': trade_wishes_model},
+        'hiddenTrade': True
+    }
+
+    # 赠送者，接受者
+    sender, recipient = dict(hasSender=False), dict(hasRecipient=False)
+    if gid:
+        gi = Gift.query.filter_by(id=gid).first()
+        # 接收者
+        re = User.query.filter_by(id=gi.receiver).first()
+        if re:
+            recipient = {
+                'hasRecipient': True,
+                'nickname': re.nickname,
+                'updateTime': re.update_time.strftime('%Y-%m-%d')
+            }
+            data['hiddenTrade'] = False
+    if wid:
+        wi = Wish.query.filter_by(id=wid).first()
+        se = User.query.filter_by(id=wi.benefactor).first()
+        if se:
+            sender = {
+                'hasSender': True,
+                'nickname': se.nickname,
+                'updateTime': se.update_time.strftime('%Y-%m-%d')
+            }
+            data['hiddenTrade'] = False
+    data['sender'] = sender
+    data['recipient'] = recipient
+
+    book_detail = BookDetail()
+    book_detail.fill(data)
+
+    return ResponseModel(dataObj=book_detail, check=False)
