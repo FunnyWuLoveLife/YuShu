@@ -6,8 +6,6 @@
 # @author: FunnyWu
 # @contact: agiot1026@163.com
 # @Software: PyCharm
-import os
-
 """
 记录开发环境和生产环境相同的配置，不涉及机密信息
 """
