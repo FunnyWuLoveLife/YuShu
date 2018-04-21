@@ -158,6 +158,7 @@ def requestBook():
         wish.launched = True
         wish.benefactor = gift.uid
 
+
         gift.launched = True
         gift.receiver = requester.id
 
@@ -275,7 +276,7 @@ def _book_details(isbn, uid, gid=None, wid=None):
             recipient = {
                 'hasRecipient': True,
                 'nickname': re.nickname,
-                'updateTime': gi.update_time[:11] if isinstance(gi.update_time, str) else ''
+                'updateTime': gi.update_time.strftime('%Y-%m-%d')
             }
             data['hiddenTrade'] = False
     if wid:
@@ -285,7 +286,7 @@ def _book_details(isbn, uid, gid=None, wid=None):
             sender = {
                 'hasSender': True,
                 'nickname': se.nickname,
-                'updateTime': wi.update_time[:11] if isinstance(wi.update_time, str) else ''
+                'updateTime': wi.update_time.strftime('%Y-%m-%d')
             }
             data['hiddenTrade'] = False
     data['sender'] = sender
